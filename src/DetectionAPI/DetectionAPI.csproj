@@ -74,7 +74,9 @@
     <Compile Include="Startup.cs" />
     <Compile Include="WebApiConfig.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Content Include="Misc\ImgDataPostSpam.html" />
+  </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.config" />

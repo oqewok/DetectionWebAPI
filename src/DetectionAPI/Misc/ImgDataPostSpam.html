@@ -1,0 +1,65 @@
+<p>Select a File to Load:</p>
+<input id="inputFileToLoad" type="file" onchange="loadImageFileAsURL();" />
+<p>File Contents as DataURL:</p>
+<textarea id="textAreaFileContents" style="width:640;height:240"></textarea>
+<p>Send</p>
+<input type="submit" onclick="uploadPicture();" value="OCR" />
+<div id="text"></div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+<script type="text/javascript">
+  
+            function uploadPicture()
+            {
+                //Prepare form data
+                var formData = new FormData();
+                formData.append("file", $("#inputFileToLoad")[0].files[0]);
+                //formData.append("url", "http://i.telegraph.co.uk/multimedia/archive/02007/Plate-1_2007614b.jpg"); //url of remote image
+                formData.append("language", "eng");
+                formData.append("apikey", "helloworld");
+                //for(var i = 0; i<10; i++){
+                    callService(formData);     
+                //}                
+            }
+            
+            function callService(formData)
+            {
+                //Send OCR Parsing request asynchronously
+                jQuery.ajax({
+                    url: "http://localhost:8002/api/detect",
+                    data: formData,
+                    dataType: 'json',
+                    cache: false,
+                    contentType: false,
+                    processData: false,
+                    type: 'POST',
+                    success: function (ocrParsedResult) {
+                        //Get the parsed results, exit code and error message and details
+                        console.log("Success!");
+                        var parsedResults = ocrParsedResult["ParsedResults"];
+                        var ocrExitCode = ocrParsedResult["OCRExitCode"];
+                        var isErroredOnProcessing = ocrParsedResult["IsErroredOnProcessing"];
+                        var errorMessage = ocrParsedResult["ErrorMessage"];
+                        var errorDetails = ocrParsedResult["ErrorDetails"];
+                        //If we have got parsed results, then loop over the results to do something
+                        if (parsedResults != null) {
+                            //Uncomment these lines if parsing multiple results
+                            $.each(parsedResults, function (index, value) {
+                                var exitCode = value["FileParseExitCode"];
+                                var parsedText = value["ParsedText"];
+                                var errorMessage = value["ParsedTextFileName"];
+                                var errorDetails = value["ErrorDetails"];
+                                
+                                console.log("OCR: " + parsedText);
+                                $("#text").html( parsedText);
+                            });
+                        }
+                    }
+                });   
+            }            
+            
+</script>
+
+
+
+
