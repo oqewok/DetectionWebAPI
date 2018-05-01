@@ -69,6 +69,7 @@
     <Compile Include="Detection\DetectionResult\DetectionResultProvider.cs" />
     <Compile Include="Detection\DetectionResult\IResultProvider.cs" />
     <Compile Include="Models\Detect.cs" />
+    <Compile Include="Models\HttpRequestModel.cs" />
     <Compile Include="Models\Product.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
