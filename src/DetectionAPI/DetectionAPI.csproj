@@ -64,6 +64,7 @@
     <Compile Include="Controllers\DetectController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ProductsController.cs" />
+    <Compile Include="Controllers\TestController.cs" />
     <Compile Include="Detection\DetectionResult\Coord.cs" />
     <Compile Include="Detection\DetectionResult\DetectionResult.cs" />
     <Compile Include="Detection\DetectionResult\DetectionResultProvider.cs" />
