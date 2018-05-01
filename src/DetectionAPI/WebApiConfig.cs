@@ -1,6 +1,8 @@
-﻿using System;
+﻿using Newtonsoft.Json.Serialization;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http.Headers;
 using System.Web.Http;
 
 namespace DetectionAPIWebHost
@@ -10,6 +12,11 @@ namespace DetectionAPIWebHost
         public static void Register(HttpConfiguration config)
         {
             // Web API configuration and services
+
+            //Removes XML formatter and sets new Newtonsoft.Json.Serializer as default
+            config.Formatters.Remove(config.Formatters.XmlFormatter);
+            config.Formatters.JsonFormatter.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+            config.Formatters.JsonFormatter.UseDataContractJsonSerializer = false;
 
             // Web API routes
             config.MapHttpAttributeRoutes();
