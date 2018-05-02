@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web.Http;
+using System.Web.Http.Description;
 using System.Web.Http.ModelBinding;
 
 namespace DetectionAPI.Controllers
@@ -66,7 +67,7 @@ namespace DetectionAPI.Controllers
 
 
         [HttpGet]
-        [Route("api/test/third")]
+        [Route("api/test/third", Name = "Method3")]
         public IHttpActionResult Method3([FromUri] string q, [FromUri] string s, [FromUri] int d)
         {
             try
@@ -84,8 +85,9 @@ namespace DetectionAPI.Controllers
         }
 
         [HttpPost]
-        [Route("api/test/posting")]
-        public IHttpActionResult PostingJson([FromBody] PostingValue postedValue)
+        [Route("api/test/posting", Name = "PostingJsonRouteNameProperty")]
+        [ResponseType(typeof(PostingValue))]
+        public async Task<IHttpActionResult> PostingJson([FromBody] PostingValue postedValue)
         {
             if (ModelState.IsValid)
             {
@@ -95,10 +97,37 @@ namespace DetectionAPI.Controllers
 
             else
             {
+                var dict = new Dictionary<string, string>();
+                dict.Add("key1", "value1");
+                dict.Add("key2", "value2");
+                dict.Add("key3", "value3");
+
+                //Location - /api/test/posting?id=1&tldr=fghkdjfhgwepbpoa234j2123 - for routeValuesObject
+                //content: dict values appears in body of response
+                return CreatedAtRoute(routeName: "PostingJsonRouteNameProperty", routeValues: new {id = postedValue.Id, tldr = postedValue.Token}, content: dict);
                 return BadRequest(ModelState);
             }
-
         }
+
+        [HttpPost]
+        [Route("api/test/badrequest", Name = "BadRequestInTestController")]
+        //[ResponseType(typeof(PostingValue))]
+        public IHttpActionResult BadRequestOnly([FromBody] PostingValue postedValue)
+        {
+            if (ModelState.IsValid)
+            {
+                Console.WriteLine(postedValue.ToString());
+                return BadRequest();
+                //return CreatedAtRoute("BadRequestInTestController", new {description = "msg_value", id = 5 }, "bad request success");
+            }
+
+            else
+            {
+                return BadRequest(ModelState);
+            }
+        }
+
+
 
         public class PostingValue
         {
