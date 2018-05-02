@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web.Http;
+using System.Web.Http.ModelBinding;
 
 namespace DetectionAPI.Controllers
 {
@@ -63,5 +65,58 @@ namespace DetectionAPI.Controllers
         }
 
 
+        [HttpGet]
+        [Route("api/test/third")]
+        public IHttpActionResult Method3([FromUri] string q, [FromUri] string s, [FromUri] int d)
+        {
+            try
+            {
+                Console.WriteLine($@"q = {q}; s = {s}; d = {d};");
+                Console.WriteLine();
+                return Ok("God request");
+            }
+
+            catch
+            {
+                return BadRequest("Bad request");
+            }
+
+        }
+
+        [HttpPost]
+        [Route("api/test/posting")]
+        public IHttpActionResult PostingJson([FromBody] PostingValue postedValue)
+        {
+            if (ModelState.IsValid)
+            {
+                Console.WriteLine(postedValue.ToString());
+                return Ok(postedValue);
+            }
+
+            else
+            {
+                return BadRequest(ModelState);
+            }
+
+        }
+
+        public class PostingValue
+        {
+            public int Id { get; set; }
+            public string Token { get; set; }
+
+            [MinLength(5)]
+            public string UserName { get; set; }
+
+            [MinLength(5)]
+            public string UserSurname { get; set; }
+
+            public override string ToString()
+            {
+                var s = $@"Id: {Id}; Token: {Token}; UserName: {UserName}; UserSurname: {UserSurname};";
+
+                return s;
+            }
+        }
     }
 }
