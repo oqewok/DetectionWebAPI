@@ -214,3 +214,7 @@ pip-log.txt
 .mr.developer.cfg
 /.vs/config
 /.vs/DetectionAPI/v15/Server/sqlite3
+/.vs/ProjectSettings.json
+/.vs/slnx.sqlite
+/.vs/slnx.sqlite-journal
+/.vs/VSWorkspaceState.json
