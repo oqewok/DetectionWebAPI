@@ -12,6 +12,7 @@ namespace DetectionAPI.Controllers
 {
 
     [Route("api/test")]
+    //[Authorize]
     public class TestController : ApiController
     {
         [HttpGet]
@@ -104,7 +105,7 @@ namespace DetectionAPI.Controllers
 
                 //Location - /api/test/posting?id=1&tldr=fghkdjfhgwepbpoa234j2123 - for routeValuesObject
                 //content: dict values appears in body of response
-                return CreatedAtRoute(routeName: "PostingJsonRouteNameProperty", routeValues: new {id = postedValue.Id, tldr = postedValue.Token}, content: dict);
+                //return CreatedAtRoute(routeName: "PostingJsonRouteNameProperty", routeValues: new {id = postedValue.Id, tldr = postedValue.Token}, content: dict);
                 return BadRequest(ModelState);
             }
         }
@@ -131,13 +132,17 @@ namespace DetectionAPI.Controllers
 
         public class PostingValue
         {
-            public int Id { get; set; }
+            
+            [Required]
+            public string Id { get; set; }
+
+            [Required]
             public string Token { get; set; }
 
-            [MinLength(5)]
+            [Required, MinLength(5)]
             public string UserName { get; set; }
 
-            [MinLength(5)]
+            [Required, MinLength(5)]
             public string UserSurname { get; set; }
 
             public override string ToString()
