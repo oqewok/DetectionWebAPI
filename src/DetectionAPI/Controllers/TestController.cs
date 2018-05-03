@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web.Http;
@@ -29,6 +31,16 @@ namespace DetectionAPI.Controllers
             }
             return Ok(dr);
         }
+
+        [HttpGet]
+        [Route("api/test/content")]
+        public IHttpActionResult ContentNotFound()
+        {
+            Console.WriteLine(Request.RequestUri);
+            Console.WriteLine(DateTime.Now.ToString("HH:MM:ss.fff"));
+            return Content(HttpStatusCode.NotFound, "There's no api/test/content action");
+        }
+
 
         [HttpPost]
         public IHttpActionResult JustAnotherMethod([FromBody]string someValue, [FromUri] int rrr)
