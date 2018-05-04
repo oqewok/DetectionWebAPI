@@ -188,7 +188,7 @@ namespace DetectionAPI.Controllers
         //}
 
 
-        ///to-do: null
+        //TODO: null
         [HttpPost]
         [Route("api/test/postimage")]
         public async Task<HttpResponseMessage> PostUserImage()
@@ -400,6 +400,7 @@ namespace DetectionAPI.Controllers
 }
 
 
+//TODO ; client call
 /***
 private static string Consume(string endpoint, string user, string password)
 {
