@@ -14,6 +14,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Configuration;
+using System.Web.Hosting;
 using System.Web.Http;
 using System.Web.Http.Description;
 using System.Web.Http.ModelBinding;
@@ -204,6 +205,64 @@ namespace DetectionAPI.Controllers
             response.Headers.Add("DocsUrl", URL);
             return response;
 
+        }
+
+        /// <summary>
+        /// Previous way was good bad a bit weird, another way is...
+        /// At this moment, can not process anything except images in request's body and token
+        /// given to all the images posted
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("api/test/IncomingMessage")]
+        public HttpResponseMessage IncomingMessage()
+        {
+            var result = new HttpResponseMessage(HttpStatusCode.OK);
+            if (Request.Content.IsMimeMultipartContent())
+            {
+                //For larger files, this might need to be added:
+                //Request.Content.LoadIntoBufferAsync().Wait();
+                try
+                {
+                    Request.Content.LoadIntoBufferAsync().Wait();
+                    Request.Content.ReadAsMultipartAsync<MultipartMemoryStreamProvider>(
+                        new MultipartMemoryStreamProvider()).ContinueWith((task) =>
+                        {
+                            MultipartMemoryStreamProvider provider = task.Result;
+                            foreach (HttpContent content in provider.Contents)
+                            {
+                                Stream stream = content.ReadAsStreamAsync().Result;
+                                Image image = Image.FromStream(stream);
+                                var testName = content.Headers.ContentDisposition.Name;
+                                //String filePath = HostingEnvironment.MapPath("~/Images/");
+                                string filePath = "E:\\";
+
+                                //Note that the ID is pushed to the request header,
+                                //not the content header:
+                                String[] headerValues = (String[])Request.Headers.GetValues("image_token");
+                                String fileName = headerValues[0] + Guid.NewGuid().ToString() + ".jpg";
+
+                                //string tmpName = Guid.NewGuid().ToString();
+                                //String fileName = tmpName + ".jpg";
+                                String fullPath = Path.Combine(filePath, fileName);
+                                image.Save(fullPath);
+                            }
+                        });
+                }
+
+                catch (Exception exc)
+                {
+                    Console.WriteLine(exc.Message);
+                }
+
+                return result;
+            }
+            else
+            {
+                throw new HttpResponseException(Request.CreateResponse(
+                        HttpStatusCode.NotAcceptable,
+                        "This request is not properly formatted"));
+            }
         }
 
         public class UploadedParameter
