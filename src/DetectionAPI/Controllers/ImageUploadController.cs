@@ -6,6 +6,8 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Net.Mime;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
@@ -123,9 +125,27 @@ namespace DetectionAPI.Controllers
 
         }
 
+        [HttpPost]
+        [Route("api/imageupload/ReadImageFile")]
+        public async Task<HttpResponseMessage> ReadImageFile([FromBody] UploadedFileFormData data)
+        {
+            MediaTypeHeaderValue header_value = new MediaTypeHeaderValue("application/json");
+
+
+            return Request.CreateResponse(statusCode: HttpStatusCode.OK, value: "asdfghjkl", mediaType: header_value);
+        }
+
+
+
         public class UploadedParameter
         {
             public string Some_text { get; set; }
+        }
+
+        public class UploadedFileFormData
+        {
+            public string Token { get; set; }
+            public Image Image { get; set; }
         }
 
 
