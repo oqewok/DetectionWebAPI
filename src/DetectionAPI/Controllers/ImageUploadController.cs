@@ -1,5 +1,7 @@
-﻿using System;
+﻿using DetectionAPI.Models;
+using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.ComponentModel.DataAnnotations;
 using System.Drawing;
 using System.IO;
@@ -11,6 +13,7 @@ using System.Net.Mime;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
+using System.Web.Configuration;
 using System.Web.Http;
 using System.Web.Http.Description;
 using System.Web.Http.ModelBinding;
@@ -135,7 +138,73 @@ namespace DetectionAPI.Controllers
             return Request.CreateResponse(statusCode: HttpStatusCode.OK, value: "asdfghjkl", mediaType: header_value);
         }
 
+        /// <summary>  
+        /// Upload Document.....  
+        /// </summary>        
+        /// <returns></returns>  
+        [HttpPost]
+        [Route("api/DocumentUpload/MediaUpload")]
+        public async Task<HttpResponseMessage> MediaUpload()
+        {
+            // Check if the request contains multipart/form-data.  
+            if (!Request.Content.IsMimeMultipartContent())
+            {
+                throw new HttpResponseException(HttpStatusCode.UnsupportedMediaType);
+            }
 
+            var provider = await Request.Content.ReadAsMultipartAsync<InMemoryMultipartFormDataStreamProvider>(new InMemoryMultipartFormDataStreamProvider());
+            //access form data  
+            NameValueCollection formData = provider.FormData;
+            //access files  
+            IList<HttpContent> files = provider.Files;
+
+            string URL = String.Empty;
+
+            //HttpContent imageFile = files[0];
+            foreach (var imageFile in files)
+            {
+                var originalFileName = imageFile.Headers.ContentDisposition.FileName.Trim('\"');
+
+                string filename = Guid.NewGuid().ToString() + ".jpg";
+                Stream input = await imageFile.ReadAsStreamAsync();
+
+                var directoryName = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "DetectionAPI");
+                Directory.CreateDirectory(directoryName);
+
+                //string tempDocUrl = WebConfigurationManager.AppSettings["DocsUrl"];
+                string tempDocUrl = "E:\\";
+
+                if (formData["Image"] == "Image")
+                {
+                    var path = HttpRuntime.AppDomainAppPath;
+                    directoryName = System.IO.Path.Combine(path, "ClientImage");
+                    filename = System.IO.Path.Combine(directoryName, originalFileName);
+
+                    //Deletion exists file  
+                    if (File.Exists(filename))
+                    {
+                        File.Delete(filename);
+                    }
+
+                    string DocsPath = tempDocUrl + "/" + "ClientImage" + "/";
+                    URL = DocsPath + originalFileName;
+
+                }
+
+                //Directory.CreateDirectory(@directoryName);  
+                using (Stream file = File.OpenWrite(filename))
+                {
+                    input.CopyTo(file);
+                    //close file  
+                    file.Close();
+                }
+            }
+
+            var response = Request.CreateResponse(HttpStatusCode.OK);
+            response.Headers.Add("DocsUrl", URL);
+            return response;
+
+        }
 
         public class UploadedParameter
         {

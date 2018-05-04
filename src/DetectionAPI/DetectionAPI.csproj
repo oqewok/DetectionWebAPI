@@ -72,6 +72,7 @@
     <Compile Include="Detection\DetectionResult\DetectionResult.cs" />
     <Compile Include="Detection\DetectionResult\DetectionResultProvider.cs" />
     <Compile Include="Detection\DetectionResult\IResultProvider.cs" />
+    <Compile Include="Models\ClientDocument\InMemoryMultipartFormDataStreamProvider.cs" />
     <Compile Include="Models\Detect.cs" />
     <Compile Include="Models\HttpRequestModel.cs" />
     <Compile Include="Models\Product.cs" />
