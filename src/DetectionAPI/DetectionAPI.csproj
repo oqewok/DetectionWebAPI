@@ -64,6 +64,7 @@
   <ItemGroup>
     <Compile Include="Controllers\DetectController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\ImageUploadController.cs" />
     <Compile Include="Controllers\ProductsController.cs" />
     <Compile Include="Controllers\TestController.cs" />
     <Compile Include="Detection\DetectionResult\Coord.cs" />
