@@ -6,9 +6,12 @@ using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 using System.Web.Http;
 using System.Web.Http.Description;
 using System.Web.Http.ModelBinding;
+using System.Web.Http.Results;
+using System.Web.UI.WebControls;
 
 namespace DetectionAPI.Controllers
 {
@@ -140,6 +143,235 @@ namespace DetectionAPI.Controllers
             }
         }
 
+        [HttpPost]
+        [Route("api/test/image/load", Name = "TestControllerImageLoad")]
+        public IHttpActionResult LoadImage([FromBody] string user_image, [FromBody] string access_token)
+        {
+            try
+            {
+                return CreatedAtRoute(routeName: "TestControllerImageLoad", routeValues: new { }, content: new { });
+            }
+
+            catch
+            {
+                return BadRequest();
+            }
+
+            //if (access_token!= null)
+            //{
+            //    Console.WriteLine($@"Access_token {access_token}");
+            //}
+            //else
+            //{
+            //    Console.WriteLine($@"Access_token not found in request's body");
+            //}
+
+            //if (user_image != null)
+            //{
+            //    Console.WriteLine($@"User_image {user_image}");
+            //}
+            //else
+            //{
+            //    Console.WriteLine($@"User_image not found in request's body");
+            //}
+
+            
+        }
+
+
+        ///!BAD
+        //[HttpPost]
+        //[Route("api/test/parameters", Name = "TestControllerBodyParameters")]
+        //public IHttpActionResult HttpRequestBase(HttpRequestBase httpRequest)
+        //{
+        //    return Ok();
+        //}
+
+
+        ///to-do: null
+        [HttpPost]
+        [Route("api/test/postimage")]
+        public async Task<HttpResponseMessage> PostUserImage()
+        {
+            Dictionary<string, object> dict = new Dictionary<string, object>();
+            try
+            {
+                ///Todo : null
+                var httpRequest = HttpContext.Current.Request;
+
+                foreach (string file in httpRequest.Files)
+                {
+                    HttpResponseMessage response = Request.CreateResponse(HttpStatusCode.Created);
+
+                    var postedFile = httpRequest.Files[file];
+                    if (postedFile != null && postedFile.ContentLength > 0)
+                    {
+
+                        int MaxContentLength = 1024 * 1024 * 3; //Size = 3 MB
+
+                        IList<string> AllowedFileExtensions = new List<string> { ".jpg", ".gif", ".png" };
+                        var ext = postedFile.FileName.Substring(postedFile.FileName.LastIndexOf('.'));
+                        var extension = ext.ToLower();
+                        if (!AllowedFileExtensions.Contains(extension))
+                        {
+
+                            var message = string.Format("Please Upload image of type .jpg,.gif,.png.");
+
+                            dict.Add("error", message);
+                            return Request.CreateResponse(HttpStatusCode.BadRequest, dict);
+                        }
+                        else if (postedFile.ContentLength > MaxContentLength)
+                        {
+
+                            var message = string.Format("Please Upload a file upto 3 mb.");
+
+                            dict.Add("error", message);
+                            return Request.CreateResponse(HttpStatusCode.BadRequest, dict);
+                        }
+                        else
+                        {
+
+                            //YourModelProperty.imageurl = userInfo.email_id + extension;
+                            //  where you want to attach your imageurl
+
+                            //if needed write the code to update the table
+
+                            //var filePath = HttpContext.Current.Server.MapPath("~/Userimage/" + userInfo.email_id + extension);
+                            var filePath = HttpContext.Current.Server.MapPath("~/Userimage/" + Guid.NewGuid() + extension);
+                            //Userimage myfolder name where i want to save my image
+                            postedFile.SaveAs(filePath);
+
+                        }
+                    }
+
+                    var message1 = string.Format("Image Updated Successfully.");
+                    return Request.CreateErrorResponse(HttpStatusCode.Created, message1); ;
+                }
+                var res = string.Format("Please Upload a image.");
+                dict.Add("error", res);
+                return Request.CreateResponse(HttpStatusCode.NotFound, dict);
+            }
+            catch (Exception ex)
+            {
+                var res = string.Format("some Message");
+                dict.Add("error", res);
+                return Request.CreateResponse(HttpStatusCode.NotFound, dict);
+            }
+        }
+
+        //
+        [HttpPost]
+        [Route("api/test/post/image")]
+        [ResponseType(typeof(FileUpload))]
+        public IHttpActionResult PostFileUpload()
+        {
+            if (HttpContext.Current.Request.Files.AllKeys.Any())
+            {
+                // Get the uploaded image from the Files collection  
+                var httpPostedFile = HttpContext.Current.Request.Files["UploadedImage"];
+                if (httpPostedFile != null)
+                {
+                    //FileUpload imgupload = new FileUpload();
+                    //int length = httpPostedFile.ContentLength;
+                    //imgupload.imagedata = new byte[length]; //get imagedata  
+                    //httpPostedFile.InputStream.Read(imgupload.imagedata, 0, length);
+                    //imgupload.imagename = Path.GetFileName(httpPostedFile.FileName);
+                    //db.FileUploads.Add(imgupload);
+                    //db.SaveChanges();
+                    //// Make sure you provide Write permissions to destination folder
+                    //string sPath = @"C:\Users\xxxx\Documents\UploadedFiles";
+                    //var fileSavePath = Path.Combine(sPath, httpPostedFile.FileName);
+                    //// Save the uploaded file to "UploadedFiles" folder  
+                    //httpPostedFile.SaveAs(fileSavePath);
+                    return Ok("Image Uploaded");
+                }
+            }
+            return Ok("Image is not Uploaded");
+        }
+
+        //
+
+
+
+        //
+        [HttpPost]
+        [Route("api/test/post/img")]
+        public async Task<HttpResponseMessage> PostFormData()
+        {
+            // Check if the request contains multipart/form-data.
+            if (!Request.Content.IsMimeMultipartContent())
+            {
+                throw new HttpResponseException(HttpStatusCode.UnsupportedMediaType);
+            }
+
+            try
+            {
+                //string root = HttpContext.Current.Server.MapPath("~/App_Data");
+
+                string r = "~/App_Data";
+                var provider = new MultipartFormDataStreamProvider(r);
+
+                try
+                {
+                    // Read the form data.
+                    await Request.Content.ReadAsMultipartAsync(provider);
+
+                    // This illustrates how to get the file names.
+                    foreach (MultipartFileData file in provider.FileData)
+                    {
+                        Console.WriteLine(file.Headers.ContentDisposition.FileName);
+                        Console.WriteLine("Server file path: " + file.LocalFileName);
+                    }
+                    return Request.CreateResponse(HttpStatusCode.OK);
+                }
+                catch (System.Exception e)
+                {
+                    return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, e);
+                }
+
+            }
+            catch (Exception exc)
+            {
+                Console.WriteLine(exc.Message);
+                return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, exc);
+            }
+
+        }
+        //
+
+
+        [HttpPost]
+        [Route("api/test/body_parameters", Name = "TestControllerBodyParameters")]
+        public IHttpActionResult BodyParams([FromBody] string user_name)
+        {
+             
+            HttpContent requestContent = Request.Content;
+            string jsonContent = requestContent.ReadAsStringAsync().Result;
+
+
+            var cs = Newtonsoft.Json.JsonConvert.SerializeObject(user_name, typeof(string) , Newtonsoft.Json.Formatting.None, null);
+
+            var cd = Newtonsoft.Json.JsonConvert.DeserializeObject(jsonContent);
+            //if (access_token != null)
+            //{
+            //    Console.WriteLine($@"Access_token {access_token}");
+            //}
+            //else
+            //{
+            //    Console.WriteLine($@"Access_token not found in request's body");
+            //}
+
+            if (user_name != null)
+            {
+                Console.WriteLine($@"User_name {user_name}");
+            }
+            else
+            {
+                Console.WriteLine($@"User_name not found in request's body");
+            }
+
+            return Ok();
+        }
 
 
         public class PostingValue
@@ -166,3 +398,27 @@ namespace DetectionAPI.Controllers
         }
     }
 }
+
+
+/***
+private static string Consume(string endpoint, string user, string password)
+{
+    var client = new HttpClient();
+    client.BaseAddress = new Uri(endpoint);
+    client.DefaultRequestHeaders.Accept.Clear();
+    client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+
+    var credential = new Credentials { User = user, Password = password };
+    var credentialString = Newtonsoft.Json.JsonConvert.SerializeObject(credential, Formatting.None);
+
+
+    var response = client.PostAsync("api/ticket", credentialString).Result;
+    response.EnsureSuccessStatusCode();
+    if (response.IsSuccessStatusCode)
+            ... //process
+
+    return string.Empty;
+}
+
+
+/***/
