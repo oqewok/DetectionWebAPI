@@ -160,21 +160,25 @@ namespace DetectionAPI.Controllers
             IList<HttpContent> files = provider.Files;
 
             string URL = String.Empty;
+            string filename = String.Empty;
 
             //HttpContent imageFile = files[0];
             foreach (var imageFile in files)
             {
                 var originalFileName = imageFile.Headers.ContentDisposition.FileName.Trim('\"');
 
-                string filename = Guid.NewGuid().ToString() + ".jpg";
+                filename = originalFileName + "_" + Guid.NewGuid().ToString() + ".jpg";
                 Stream input = await imageFile.ReadAsStreamAsync();
 
-                var directoryName = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "DetectionAPI");
+                var directoryName = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "DetectionAPI", "UserImages");
                 Directory.CreateDirectory(directoryName);
+
+                filename = Path.Combine(directoryName, filename);
 
                 //string tempDocUrl = WebConfigurationManager.AppSettings["DocsUrl"];
                 string tempDocUrl = "E:\\";
 
+                /**
                 if (formData["Image"] == "Image")
                 {
                     var path = HttpRuntime.AppDomainAppPath;
@@ -191,6 +195,7 @@ namespace DetectionAPI.Controllers
                     URL = DocsPath + originalFileName;
 
                 }
+                **/
 
                 //Directory.CreateDirectory(@directoryName);  
                 using (Stream file = File.OpenWrite(filename))
@@ -202,7 +207,7 @@ namespace DetectionAPI.Controllers
             }
 
             var response = Request.CreateResponse(HttpStatusCode.OK);
-            response.Headers.Add("DocsUrl", URL);
+            //response.Headers.Add("X-ImageURL", filename);
             return response;
 
         }
@@ -235,7 +240,7 @@ namespace DetectionAPI.Controllers
                                 Image image = Image.FromStream(stream);
                                 var testName = content.Headers.ContentDisposition.Name;
                                 //String filePath = HostingEnvironment.MapPath("~/Images/");
-                                string filePath = "E:\\";
+                                string filePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "DetectionAPI", "UserImages");
 
                                 //Note that the ID is pushed to the request header,
                                 //not the content header:
