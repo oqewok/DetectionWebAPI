@@ -165,7 +165,8 @@ namespace DetectionAPI.Controllers
             //HttpContent imageFile = files[0];
             foreach (var imageFile in files)
             {
-                var originalFileName = imageFile.Headers.ContentDisposition.FileName.Trim('\"');
+                var origNameAndExtension = imageFile.Headers.ContentDisposition.FileName.Trim('\"');
+                var originalFileName = Path.GetFileNameWithoutExtension(origNameAndExtension);
 
                 filename = originalFileName + "_" + Guid.NewGuid().ToString() + ".jpg";
                 Stream input = await imageFile.ReadAsStreamAsync();
@@ -241,11 +242,16 @@ namespace DetectionAPI.Controllers
                                 var testName = content.Headers.ContentDisposition.Name;
                                 //String filePath = HostingEnvironment.MapPath("~/Images/");
                                 string filePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "DetectionAPI", "UserImages");
+                                Directory.CreateDirectory(filePath);
 
                                 //Note that the ID is pushed to the request header,
                                 //not the content header:
                                 String[] headerValues = (String[])Request.Headers.GetValues("image_token");
-                                String fileName = headerValues[0] + Guid.NewGuid().ToString() + ".jpg";
+
+                                var origNameAndExtension = content.Headers.ContentDisposition.FileName.Trim('\"');
+                                var origName = Path.GetFileNameWithoutExtension(origNameAndExtension);
+
+                                String fileName = headerValues[0] + "_" + origName + "_"+ Guid.NewGuid().ToString() + ".jpg";
 
                                 //string tmpName = Guid.NewGuid().ToString();
                                 //String fileName = tmpName + ".jpg";
