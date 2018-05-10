@@ -376,8 +376,8 @@ namespace DetectionAPI.Controllers
 
         public class PostingValue
         {
-            
-            [Required]
+            //TODO : look at this
+            [Required(ErrorMessage = "Id is required parameter")]
             public string Id { get; set; }
 
             [Required]

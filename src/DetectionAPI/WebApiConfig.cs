@@ -18,6 +18,9 @@ namespace DetectionAPIWebHost
             config.Formatters.JsonFormatter.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
             config.Formatters.JsonFormatter.UseDataContractJsonSerializer = false;
 
+            //Override when the error detail gets sent back to clients directly
+            config.IncludeErrorDetailPolicy = IncludeErrorDetailPolicy.LocalOnly;
+
             // Web API routes
             config.MapHttpAttributeRoutes();
 
