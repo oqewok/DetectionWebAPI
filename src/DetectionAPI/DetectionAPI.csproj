@@ -87,6 +87,10 @@
     <Compile Include="Filters\BasicAuthenticationFilter.cs" />
     <Compile Include="Filters\BasicAuthenticationIdentity.cs" />
     <Compile Include="Filters\RealBasicAuthenticationFilter.cs" />
+    <Compile Include="Misc\tmp\Class1.cs" />
+    <Compile Include="Misc\tmp\Class2.cs" />
+    <Compile Include="Misc\tmp\Class3.cs" />
+    <Compile Include="Misc\tmp\Class4.cs" />
     <Compile Include="Models\ClientDocument\InMemoryMultipartFormDataStreamProvider.cs" />
     <Compile Include="Models\Detect.cs" />
     <Compile Include="Models\HttpRequestModel.cs" />
