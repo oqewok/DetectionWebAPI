@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -188,7 +189,7 @@ namespace DetectionAPI.Controllers
         //}
 
 
-        //TODO: null
+        //TODO: null, works with IIS only due to HttpContext
         [HttpPost]
         [Route("api/test/postimage")]
         public async Task<HttpResponseMessage> PostUserImage()
@@ -237,9 +238,21 @@ namespace DetectionAPI.Controllers
                             //if needed write the code to update the table
 
                             //var filePath = HttpContext.Current.Server.MapPath("~/Userimage/" + userInfo.email_id + extension);
-                            var filePath = HttpContext.Current.Server.MapPath("~/Userimage/" + Guid.NewGuid() + extension);
+                            //var filePath = HttpContext.Current.Server.MapPath("~/Userimage/" + Guid.NewGuid() + extension);
+
+                            string filePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "DetectionAPI", "UserImages");
+                            Directory.CreateDirectory(filePath);
+
+                            string origNameAndExtension = postedFile.FileName.Trim('\"');
+                            var origName = Path.GetFileNameWithoutExtension(origNameAndExtension);
+
+
+                            string filename = origName + "_" + Guid.NewGuid().ToString() + extension;
+                            filename = Path.Combine(filePath, filename);
+
+
                             //Userimage myfolder name where i want to save my image
-                            postedFile.SaveAs(filePath);
+                            postedFile.SaveAs(filename);
 
                         }
                     }
@@ -253,8 +266,8 @@ namespace DetectionAPI.Controllers
             }
             catch (Exception ex)
             {
-                var res = string.Format("some Message");
-                dict.Add("error", res);
+                var res = string.Format("Internal error occured");
+                dict.Add("Error", res);
                 return Request.CreateResponse(HttpStatusCode.NotFound, dict);
             }
         }
@@ -293,7 +306,7 @@ namespace DetectionAPI.Controllers
 
 
 
-        //
+        // TODO : good exmple too
         [HttpPost]
         [Route("api/test/post/img")]
         public async Task<HttpResponseMessage> PostFormData()

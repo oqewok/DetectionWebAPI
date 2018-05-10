@@ -38,13 +38,17 @@ namespace DetectionAPI.Controllers
 
         /// <summary>
         /// Method to upload a arameter to API in request's body
+        /// x-www-form-urlencoded only
         /// </summary>
         /// <returns></returns>
         [HttpPost]
         [Route("api/upload/parameters")]
         public async Task<IHttpActionResult> UploadParameters([FromBody] UploadedParameter p)
         {
-
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
 
             var m = this.Request.Content.IsFormData();
             var dict = new Dictionary<string, string>();
@@ -246,12 +250,14 @@ namespace DetectionAPI.Controllers
 
                                 //Note that the ID is pushed to the request header,
                                 //not the content header:
-                                String[] headerValues = (String[])Request.Headers.GetValues("image_token");
+                                //String[] headerValues = (String[])Request.Headers.GetValues("image_token");
+                                string headerValues = "img";
 
                                 var origNameAndExtension = content.Headers.ContentDisposition.FileName.Trim('\"');
                                 var origName = Path.GetFileNameWithoutExtension(origNameAndExtension);
 
-                                String fileName = headerValues[0] + "_" + origName + "_"+ Guid.NewGuid().ToString() + ".jpg";
+                                //String fileName = headerValues[0] + "_" + origName + "_"+ Guid.NewGuid().ToString() + ".jpg";
+                                String fileName = headerValues + "_" + origName + "_" + Guid.NewGuid().ToString() + ".jpg";
 
                                 //string tmpName = Guid.NewGuid().ToString();
                                 //String fileName = tmpName + ".jpg";
