@@ -1,4 +1,6 @@
-﻿using DetectionAPI.Models;
+﻿using DetectionAPI.Filters;
+using DetectionAPI.Models;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -95,14 +97,46 @@ namespace DetectionAPI.Controllers
         /// <returns></returns>
         /// 
 
-        [Authorize]
+        [HttpGet]
+        [RealBasicAuthenticationFilter]
+        [Route("api/account/auth")]
         public IHttpActionResult Authorize()
         {
+            return Ok("You have been authorized");
+        }
 
-            return Ok();
+
+        [HttpGet]
+        [Route("api/account/base64")]
+        public IHttpActionResult GetBase64String()
+        {
+            string original = "oqewok:1234";
+
+            var base64str = new MyBase64Str();
+            base64str.Base64EncodedString = Base64Encode(original);
+
+            return Ok(base64str);
         }
 
         
+        public class MyBase64Str
+        {
+            [JsonProperty (PropertyName = "string_based64")]
+            public string Base64EncodedString { get; set; }
+
+        }
+
+        public static string Base64Encode(string plainText)
+        {
+            var plainTextBytes = Encoding.UTF8.GetBytes(plainText);
+            return Convert.ToBase64String(plainTextBytes);
+        }
+
+        public static string Base64Decode(string base64EncodedData)
+        {
+            var base64EncodedBytes = Convert.FromBase64String(base64EncodedData);
+            return Encoding.UTF8.GetString(base64EncodedBytes);
+        }
 
 
     }
