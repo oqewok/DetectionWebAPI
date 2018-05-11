@@ -18,6 +18,7 @@ using System.Web;
 using System.Web.Configuration;
 using System.Web.Hosting;
 using System.Web.Http;
+using Newtonsoft.Json;
 using System.Web.Http.Description;
 using System.Web.Http.ModelBinding;
 using System.Web.Http.Results;
@@ -36,303 +37,10 @@ namespace DetectionAPI.Controllers
         [HttpPost]
         [RealBasicAuthenticationFilter]
         [Route("api/detection")]
-        public async Task<IHttpActionResult> TryDetection()
+        public IHttpActionResult TryDetection()
         {
-            int MaxContentLength = 1024 * 1024 * 3; // 3MB
+            string n = string.Empty;
 
-
-
-            if (!Request.Content.IsMimeMultipartContent())
-            {
-                throw new HttpResponseException(HttpStatusCode.UnsupportedMediaType);
-            }
-
-            try
-            {
-                //Make Directory for images
-                var directoryName = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "DetectionAPI", "UserImages");
-                Directory.CreateDirectory(directoryName);
-
-                var provider = new MultipartFormDataStreamProvider(directoryName);
-
-                try
-                {
-                    // Read the form data.
-                    //await Request.Content.ReadAsMultipartAsync(provider);
-
-                    //// This illustrates how to get the file names.
-                    //foreach (MultipartFileData file in provider.FileData)
-                    //{
-                    //    Console.WriteLine(file.Headers.ContentDisposition.FileName);
-                    //    Console.WriteLine("Server file path: " + file.LocalFileName);
-                    //}
-
-
-                    var filesReadToProvider = await Request.Content.ReadAsMultipartAsync();
-
-                    foreach (var stream in filesReadToProvider.Contents)
-                    {
-                        //getting of content as byte[], picture name and picture type
-                        var fileBytes = await stream.ReadAsByteArrayAsync();
-                        var pictureName = stream.Headers.ContentDisposition.FileName.Trim('\"');
-                        var contentType = stream.Headers.ContentType.MediaType.Trim('\"');
-                    }
-
-
-
-                    return Ok();
-                }
-                catch (Exception e)
-                {
-                    return InternalServerError(e);
-                }
-
-            }
-            catch (Exception exc)
-            {
-                Console.WriteLine(exc.Message);
-                return InternalServerError(exc);
-            }
-
-
-            //DetectionResultProvider drp = new DetectionResultProvider();
-            //var dr = drp.DetectionResult();
-
-            //if (dr == null)
-            //{
-            //    throw new HttpResponseException(Request.CreateResponse(HttpStatusCode.BadRequest, "Detection failed"));
-            //}
-
-            //return Ok(dr);
-        }
-
-
-
-
-
-
-        #region DeteteThisExamples
-
-        //1
-        //TODO: works with IIS only due to HttpContext
-        [HttpPost]
-        [Route("api/detection/postimage")]
-        public async Task<HttpResponseMessage> PostUserImage()
-        {
-            Dictionary<string, object> dict = new Dictionary<string, object>();
-            try
-            {
-                ///Todo : null
-                var httpRequest = HttpContext.Current.Request;
-
-                foreach (string file in httpRequest.Files)
-                {
-                    HttpResponseMessage response = Request.CreateResponse(HttpStatusCode.Created);
-
-                    var postedFile = httpRequest.Files[file];
-                    if (postedFile != null && postedFile.ContentLength > 0)
-                    {
-
-                        int MaxContentLength = 1024 * 1024 * 3; //Size = 3 MB
-
-                        IList<string> AllowedFileExtensions = new List<string> { ".jpg", ".gif", ".png" };
-                        var ext = postedFile.FileName.Substring(postedFile.FileName.LastIndexOf('.'));
-                        var extension = ext.ToLower();
-                        if (!AllowedFileExtensions.Contains(extension))
-                        {
-
-                            var message = string.Format("Please Upload image of type .jpg,.gif,.png.");
-
-                            dict.Add("error", message);
-                            return Request.CreateResponse(HttpStatusCode.BadRequest, dict);
-                        }
-                        else if (postedFile.ContentLength > MaxContentLength)
-                        {
-
-                            var message = string.Format("Please Upload a file upto 3 mb.");
-
-                            dict.Add("error", message);
-                            return Request.CreateResponse(HttpStatusCode.BadRequest, dict);
-                        }
-                        else
-                        {
-
-                            //YourModelProperty.imageurl = userInfo.email_id + extension;
-                            //  where you want to attach your imageurl
-
-                            //if needed write the code to update the table
-
-                            //var filePath = HttpContext.Current.Server.MapPath("~/Userimage/" + userInfo.email_id + extension);
-                            //var filePath = HttpContext.Current.Server.MapPath("~/Userimage/" + Guid.NewGuid() + extension);
-
-                            string filePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "DetectionAPI", "UserImages");
-                            Directory.CreateDirectory(filePath);
-
-                            string origNameAndExtension = postedFile.FileName.Trim('\"');
-                            var origName = Path.GetFileNameWithoutExtension(origNameAndExtension);
-
-
-                            string filename = origName + "_" + Guid.NewGuid().ToString() + extension;
-                            filename = Path.Combine(filePath, filename);
-
-
-                            //Userimage myfolder name where i want to save my image
-                            postedFile.SaveAs(filename);
-
-                        }
-                    }
-
-                    var message1 = string.Format("Image Updated Successfully.");
-                    return Request.CreateErrorResponse(HttpStatusCode.Created, message1); ;
-                }
-                var res = string.Format("Please Upload a image.");
-                dict.Add("error", res);
-                return Request.CreateResponse(HttpStatusCode.NotFound, dict);
-            }
-            catch (Exception ex)
-            {
-                var res = string.Format("Internal error occured");
-                dict.Add("Error", res);
-                return Request.CreateResponse(HttpStatusCode.NotFound, dict);
-            }
-        }
-
-        //2
-        //
-        [HttpPost]
-        [Route("api/detection/post/img")]
-        public async Task<HttpResponseMessage> PostFormData()
-        {
-            // Check if the request contains multipart/form-data.
-            if (!Request.Content.IsMimeMultipartContent())
-            {
-                throw new HttpResponseException(HttpStatusCode.UnsupportedMediaType);
-            }
-
-            try
-            {
-                //string root = HttpContext.Current.Server.MapPath("~/App_Data");
-
-                string r = "~/App_Data";
-                var provider = new MultipartFormDataStreamProvider(r);
-
-                try
-                {
-                    // Read the form data.
-                    await Request.Content.ReadAsMultipartAsync(provider);
-
-                    // This illustrates how to get the file names.
-                    foreach (MultipartFileData file in provider.FileData)
-                    {
-                        Console.WriteLine(file.Headers.ContentDisposition.FileName);
-                        Console.WriteLine("Server file path: " + file.LocalFileName);
-                    }
-                    return Request.CreateResponse(HttpStatusCode.OK);
-                }
-                catch (System.Exception e)
-                {
-                    return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, e);
-                }
-
-            }
-            catch (Exception exc)
-            {
-                Console.WriteLine(exc.Message);
-                return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, exc);
-            }
-
-        }
-
-
-        //3
-        //
-        /// <summary>  
-        /// Upload Document.....  
-        /// </summary>        
-        /// <returns></returns>  
-        [HttpPost]
-        [Route("api/detection/MediaUpload")]
-        public async Task<HttpResponseMessage> MediaUpload()
-        {
-            // Check if the request contains multipart/form-data.  
-            if (!Request.Content.IsMimeMultipartContent())
-            {
-                throw new HttpResponseException(HttpStatusCode.UnsupportedMediaType);
-            }
-
-            var provider = await Request.Content.ReadAsMultipartAsync<InMemoryMultipartFormDataStreamProvider>(new InMemoryMultipartFormDataStreamProvider());
-            //access form data  
-            NameValueCollection formData = provider.FormData;
-            //access files  
-            IList<HttpContent> files = provider.Files;
-
-            string URL = String.Empty;
-            string filename = String.Empty;
-
-            //HttpContent imageFile = files[0];
-            foreach (var imageFile in files)
-            {
-                var origNameAndExtension = imageFile.Headers.ContentDisposition.FileName.Trim('\"');
-                var originalFileName = Path.GetFileNameWithoutExtension(origNameAndExtension);
-
-                filename = originalFileName + "_" + Guid.NewGuid().ToString() + ".jpg";
-                Stream input = await imageFile.ReadAsStreamAsync();
-
-                var directoryName = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "DetectionAPI", "UserImages");
-                Directory.CreateDirectory(directoryName);
-
-                filename = Path.Combine(directoryName, filename);
-
-                //string tempDocUrl = WebConfigurationManager.AppSettings["DocsUrl"];
-                string tempDocUrl = "E:\\";
-
-                /**
-                if (formData["Image"] == "Image")
-                {
-                    var path = HttpRuntime.AppDomainAppPath;
-                    directoryName = System.IO.Path.Combine(path, "ClientImage");
-                    filename = System.IO.Path.Combine(directoryName, originalFileName);
-
-                    //Deletion exists file  
-                    if (File.Exists(filename))
-                    {
-                        File.Delete(filename);
-                    }
-
-                    string DocsPath = tempDocUrl + "/" + "ClientImage" + "/";
-                    URL = DocsPath + originalFileName;
-
-                }
-                **/
-
-                //Directory.CreateDirectory(@directoryName);  
-                using (Stream file = File.OpenWrite(filename))
-                {
-                    input.CopyTo(file);
-                    //close file  
-                    file.Close();
-                }
-            }
-
-            var response = Request.CreateResponse(HttpStatusCode.OK);
-            //response.Headers.Add("X-ImageURL", filename);
-            return response;
-
-        }
-
-        //4
-        //
-        /// <summary>
-        /// Previous way was good bad a bit weird, another way is...
-        /// At this moment, can not process anything except images in request's body and token
-        /// given to all the images posted
-        /// </summary>
-        /// <returns></returns>
-        [HttpPost]
-        [Route("api/detection/IncomingMessage")]
-        public HttpResponseMessage IncomingMessage()
-        {
-            var result = new HttpResponseMessage(HttpStatusCode.OK);
             if (Request.Content.IsMimeMultipartContent())
             {
                 //For larger files, this might need to be added:
@@ -361,8 +69,11 @@ namespace DetectionAPI.Controllers
                                 var origNameAndExtension = content.Headers.ContentDisposition.FileName.Trim('\"');
                                 var origName = Path.GetFileNameWithoutExtension(origNameAndExtension);
 
+                                var guid = Guid.NewGuid().ToString();
+
                                 //String fileName = headerValues[0] + "_" + origName + "_"+ Guid.NewGuid().ToString() + ".jpg";
-                                String fileName = headerValues + "_" + origName + "_" + Guid.NewGuid().ToString() + ".jpg";
+                                String fileName = headerValues + "_" + origName + "_" + guid + ".jpg";
+                                n = headerValues + "_" + origName + "_" + guid + ".json";
 
                                 //string tmpName = Guid.NewGuid().ToString();
                                 //String fileName = tmpName + ".jpg";
@@ -377,7 +88,24 @@ namespace DetectionAPI.Controllers
                     Console.WriteLine(exc.Message);
                 }
 
-                return result;
+                DetectionResultProvider drp = new DetectionResultProvider();
+                var dr = drp.DetectionResult();
+
+                if (dr == null)
+                {
+                    throw new HttpResponseException(Request.CreateResponse(HttpStatusCode.BadRequest, "Detection failed"));
+                }
+
+                n = "markup.json";
+                string fp = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "DetectionAPI", "ImagesMarkup");
+                Directory.CreateDirectory(fp);
+                string jsonPath = Path.Combine(fp, n);
+
+                var json = JsonConvert.SerializeObject(dr, Formatting.Indented);
+                File.WriteAllText(jsonPath, json);
+
+
+                return Ok(dr);
             }
             else
             {
@@ -386,8 +114,6 @@ namespace DetectionAPI.Controllers
                         "This request is not properly formatted"));
             }
         }
-
-        #endregion
 
     }
 }

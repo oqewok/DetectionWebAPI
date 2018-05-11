@@ -10,10 +10,10 @@ namespace DetectionAPI.Detection.DetectionResult
  
     public class Coord
     {
-        
+        [JsonProperty(PropertyName = "name")]
         public string Name { get; set; }
 
-        [JsonProperty(PropertyName = "CoordValue")]
+        [JsonProperty(PropertyName = "value")]
         public int Value { get; set; }
     }
 }

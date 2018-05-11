@@ -87,6 +87,7 @@
     <Compile Include="Filters\BasicAuthenticationFilter.cs" />
     <Compile Include="Filters\BasicAuthenticationIdentity.cs" />
     <Compile Include="Filters\RealBasicAuthenticationFilter.cs" />
+    <Compile Include="Misc\DetectionCollector\DetectionAlgCollector.cs" />
     <Compile Include="Misc\tmp\Class1.cs" />
     <Compile Include="Misc\tmp\Class2.cs" />
     <Compile Include="Misc\tmp\Class3.cs" />
