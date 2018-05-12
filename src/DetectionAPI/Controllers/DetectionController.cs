@@ -23,11 +23,54 @@ using System.Web.Http.Description;
 using System.Web.Http.ModelBinding;
 using System.Web.Http.Results;
 using DetectionAPI.Detection.DetectionResult;
+using DetectionAPI.Misc.DetectionCollector;
+using PlateDetector.Detection;
+using System.Diagnostics;
+using Ninject;
 
 namespace DetectionAPI.Controllers
 {
     public class DetectionController : ApiController
     {
+        #region Properties
+        private Detector _MainDetector { get; set; }
+
+        private FakeDetector _FakeDetector { get; set; }
+
+        private IDetector _detector;
+
+        #endregion
+
+
+        #region .ctor
+        public DetectionController()
+        {
+
+        }
+
+        public DetectionController(IDetector detector)
+        {
+            _detector = detector;
+
+        }
+
+
+        //public DetectionController()
+        //{
+
+        //}
+
+        //public DetectionController(Detector detector)
+        //{
+        //    _MainDetector = detector;
+        //}
+
+        //public DetectionController(FakeDetector detector)
+        //{
+        //    _FakeDetector = detector;
+        //}
+        #endregion
+
 
         /// <summary>
         /// Method, that consumes request's form-data images and produces detection result
@@ -39,6 +82,7 @@ namespace DetectionAPI.Controllers
         [Route("api/detection")]
         public IHttpActionResult TryDetection()
         {
+
             string n = string.Empty;
 
             if (Request.Content.IsMimeMultipartContent())
@@ -88,24 +132,39 @@ namespace DetectionAPI.Controllers
                     Console.WriteLine(exc.Message);
                 }
 
-                DetectionResultProvider drp = new DetectionResultProvider();
-                var dr = drp.DetectionResult();
-
-                if (dr == null)
+                try
                 {
-                    throw new HttpResponseException(Request.CreateResponse(HttpStatusCode.BadRequest, "Detection failed"));
+
+                    var det_result = _detector.Detect();
+
+                    if (det_result == null)
+                    {
+                        throw new HttpResponseException(Request.CreateResponse(HttpStatusCode.BadRequest, "Detection failed"));
+                    }
+
+                    n = "markup.json";
+                    string fp = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "DetectionAPI", "ImagesMarkup");
+                    Directory.CreateDirectory(fp);
+                    string jsonPath = Path.Combine(fp, n);
+
+                    var json = JsonConvert.SerializeObject(det_result, Formatting.Indented);
+                    File.WriteAllText(jsonPath, json);
+
+
+                    return Ok(det_result);
+
+
+
+
                 }
 
-                n = "markup.json";
-                string fp = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "DetectionAPI", "ImagesMarkup");
-                Directory.CreateDirectory(fp);
-                string jsonPath = Path.Combine(fp, n);
-
-                var json = JsonConvert.SerializeObject(dr, Formatting.Indented);
-                File.WriteAllText(jsonPath, json);
+                catch (Exception ex)
+                {
+                    Trace.WriteLine(ex.StackTrace);
+                    return BadRequest();
+                }
 
 
-                return Ok(dr);
             }
             else
             {
