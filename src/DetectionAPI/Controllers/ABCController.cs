@@ -32,17 +32,26 @@ namespace DetectionAPI.Controllers
 {
     public class ABCController : ApiController
     {
-        public Detector det { get; set; }
+        public Detector det;
 
-        //public ABCController()
+        public FakeDetector f_detector;
+
+        public ABCController()
+        {
+
+        }
+
+        //public ABCController(FakeDetector fd)
         //{
-
+        //    f_detector = fd;
         //}
 
-        //public ABCController(Detector detector)
-        //{
-        //    det = detector;
-        //}
+        public ABCController(Detector detector, FakeDetector fd)
+        {
+            det = detector;
+            f_detector = fd;
+
+        }
 
         [HttpGet]
         [Route("api/abc")]
@@ -57,18 +66,12 @@ namespace DetectionAPI.Controllers
             try
             {
                 //detector
-                Detector det = new Detector(new AlgManager(new FasterRcnnProvider()));
+                //Detector det = new Detector(new AlgManager(new FasterRcnnProvider()));
                 if (det == null) return BadRequest();
 
                 var det_result = det.Detect(image1);
 
-                var json = JsonConvert.SerializeObject(det_result, Formatting.None);
-
-                var drs = det_result.ToString();
-
-                var json_drs = JsonConvert.SerializeObject(drs, Formatting.Indented);
-
-                return Ok(json);
+                return Ok(det_result);
             }
 
             catch (Exception exc)
@@ -80,5 +83,23 @@ namespace DetectionAPI.Controllers
 
             
         }
+
+
+
+        [HttpGet]
+        [Route("api/abc/fake")]
+        public IHttpActionResult TryFakeDetection()
+        {
+            Console.WriteLine("Hi, fake");
+
+            if (f_detector == null) { return BadRequest(); }
+
+            var res = f_detector.Detect();
+
+
+
+            return Ok(res);
+        }
+
     }
 }

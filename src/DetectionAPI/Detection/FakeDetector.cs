@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Ninject;
+using System.IO;
 
 namespace DetectionAPI.Detection
 {
@@ -13,8 +14,11 @@ namespace DetectionAPI.Detection
         private Coord[] Coordinates { get; set; }
         public Guid Name { get; set; }
 
-        public FakeDetector()
+        private FakeDetectorInsider FDI;
+
+        public FakeDetector(FakeDetectorInsider fdi)
         {
+            FDI = fdi;
             //Name = Guid.NewGuid().ToString();
         }
 
@@ -36,6 +40,35 @@ namespace DetectionAPI.Detection
             };
 
             return dr;
+        }
+
+        public class FakeDetectorInsider
+        {
+            public Guid InsiderName { get; set; }
+
+            private Insiderinsider II;
+
+            public FakeDetectorInsider(Insiderinsider ii)
+            {
+                II = ii;
+            }
+        }
+
+        public class Insiderinsider
+        {
+            public Guid InsiderInsiderName { get; set; }
+            public List<StreamReader> SomeStreamReader { get; set; }
+
+            public Insiderinsider()
+            {
+                SomeStreamReader = new List<StreamReader>();
+                for(int i=0; i<500; i++)
+                {
+                    SomeStreamReader.Add(new StreamReader("D:\\images\\car10326495.jpg"));
+                }
+                
+            }
+
         }
 
     }
