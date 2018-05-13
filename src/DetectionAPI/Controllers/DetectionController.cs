@@ -23,10 +23,10 @@ using System.Web.Http.Description;
 using System.Web.Http.ModelBinding;
 using System.Web.Http.Results;
 using DetectionAPI.Detection.DetectionResult;
-using DetectionAPI.Misc.DetectionCollector;
 using PlateDetector.Detection;
 using System.Diagnostics;
 using Ninject;
+using OpenCvSharp;
 
 namespace DetectionAPI.Controllers
 {
@@ -134,8 +134,19 @@ namespace DetectionAPI.Controllers
 
                 try
                 {
+                    Detector det = new Detector(new AlgManager(new FasterRcnnProvider()));
+                    Bitmap img = new Bitmap("D:\\images\\car10326495.jpg");
+                    //Detector det = new Detector(new AlgManager(new FasterRcnnProvider()));
 
-                    var det_result = _detector.Detect();
+                    //Mat image1 = new Mat("D:\\images\\car10326495.jpg");
+                    //var det_result = det.Detect(image1);
+
+                    //var det_result = _detector.Detect();
+
+                    //var fc = new FakeDetector();
+                    //var det_result = fc.Detect();
+
+                    var det_result = _MainDetector.Detect(img);
 
                     if (det_result == null)
                     {
@@ -151,7 +162,8 @@ namespace DetectionAPI.Controllers
                     File.WriteAllText(jsonPath, json);
 
 
-                    return Ok(det_result);
+                    //return Ok(det_result);
+                    return Ok(json);
 
 
 

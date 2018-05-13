@@ -12,6 +12,7 @@ using Ninject.Extensions;
 using Ninject.Syntax;
 using Ninject.Activation;
 using Ninject.Parameters;
+using PlateDetector.Detection;
 
 namespace DetectionAPI.Infrastructure
 {
@@ -35,6 +36,18 @@ namespace DetectionAPI.Infrastructure
         {
             //_kernel.Bind<IDetector>().To<FakeDetector>().InSingletonScope();
             _kernel.Bind<IDetector>().To<FakeDetector>().InSingletonScope().WithPropertyValue("Name", Guid.NewGuid());
+
+
+            //_kernel.Bind<FasterRcnnProvider>().ToSelf().InSingletonScope();
+            //_kernel.Bind<AlgManager>().ToSelf().InSingletonScope().WithConstructorArgument("FasterRcnnProvider", new FasterRcnnProvider());
+            //_kernel.Bind<Detector>().ToSelf().InSingletonScope().WithConstructorArgument("AlgManager", new AlgManager());
+
+            //_kernel.Bind<FasterRcnnProvider>().ToSelf().InSingletonScope();
+            //_kernel.Bind<AlgManager>().ToSelf().InSingletonScope();
+            _kernel.Bind<Detector>()
+                .ToSelf().
+                InSingletonScope().
+                WithConstructorArgument("AlgManager", new AlgManager(new FasterRcnnProvider()));
         }
 
     }
