@@ -35,7 +35,7 @@ namespace DetectionAPI.Controllers
         #region Properties
         private Detector _MainDetector { get; set; }
 
-        private FakeDetector _FakeDetector { get; set; }
+        //private FakeDetector _FakeDetector { get; set; }
 
         private IDetector _detector;
 
@@ -48,11 +48,11 @@ namespace DetectionAPI.Controllers
 
         }
 
-        public DetectionController(IDetector detector)
-        {
-            _detector = detector;
+        //public DetectionController(IDetector detector)
+        //{
+        //    _detector = detector;
 
-        }
+        //}
 
 
         //public DetectionController()
@@ -60,10 +60,10 @@ namespace DetectionAPI.Controllers
 
         //}
 
-        //public DetectionController(Detector detector)
-        //{
-        //    _MainDetector = detector;
-        //}
+        public DetectionController(Detector detector)
+        {
+            _MainDetector = detector;
+        }
 
         //public DetectionController(FakeDetector detector)
         //{
@@ -134,8 +134,10 @@ namespace DetectionAPI.Controllers
 
                 try
                 {
-                    Detector det = new Detector(new AlgManager(new FasterRcnnProvider()));
+                    //Detector det = new Detector(new AlgManager(new FasterRcnnProvider()));
+
                     Bitmap img = new Bitmap("D:\\images\\car10326495.jpg");
+
                     //Detector det = new Detector(new AlgManager(new FasterRcnnProvider()));
 
                     //Mat image1 = new Mat("D:\\images\\car10326495.jpg");
@@ -162,11 +164,7 @@ namespace DetectionAPI.Controllers
                     File.WriteAllText(jsonPath, json);
 
 
-                    //return Ok(det_result);
-                    return Ok(json);
-
-
-
+                    return Ok(det_result);
 
                 }
 
