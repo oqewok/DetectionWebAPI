@@ -19,7 +19,7 @@ namespace DetectionAPI.Detection
         public FakeDetector(FakeDetectorInsider fdi)
         {
             FDI = fdi;
-            //Name = Guid.NewGuid().ToString();
+            Name = Guid.NewGuid();
         }
 
         public Coord[] Detect()
@@ -42,6 +42,12 @@ namespace DetectionAPI.Detection
             return dr;
         }
 
+
+        public string GetName()
+        {
+            return Name.ToString();
+        }
+
         public class FakeDetectorInsider
         {
             public Guid InsiderName { get; set; }
@@ -51,6 +57,7 @@ namespace DetectionAPI.Detection
             public FakeDetectorInsider(Insiderinsider ii)
             {
                 II = ii;
+                InsiderName = Guid.NewGuid();
             }
         }
 
@@ -61,6 +68,7 @@ namespace DetectionAPI.Detection
 
             public Insiderinsider()
             {
+                InsiderInsiderName = Guid.NewGuid();
                 SomeStreamReader = new List<StreamReader>();
                 for(int i=0; i<500; i++)
                 {

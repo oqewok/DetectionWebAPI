@@ -43,10 +43,10 @@ namespace DetectionAPI.Controllers
 
 
         #region .ctor
-        public DetectionController()
-        {
+        //public DetectionController()
+        //{
 
-        }
+        //}
 
         //public DetectionController(IDetector detector)
         //{
@@ -79,8 +79,8 @@ namespace DetectionAPI.Controllers
         /// if user have not been authorized to perform this action</returns>
         [HttpPost]
         [RealBasicAuthenticationFilter]
-        [Route("api/detection")]
-        public IHttpActionResult TryDetection()
+        [Route("api/detection/old")]
+        public IHttpActionResult TryDetectionOld()
         {
 
             string n = string.Empty;
@@ -183,6 +183,76 @@ namespace DetectionAPI.Controllers
                         "This request is not properly formatted"));
             }
         }
+
+
+        [HttpPost]
+        [RealBasicAuthenticationFilter]
+        [Route("api/detection")]
+        public async Task<IHttpActionResult> TryDetection()
+        {
+            int MaxContentLength = 1024 * 1024 * 3; //Size = 3 MB
+            IList<string> AllowedFileExtensions = new List<string> { ".jpg", ".jpeg", ".png" };
+            string n = string.Empty;
+
+            Dictionary<string, object> ErrorInfoDict = new Dictionary<string, object>();
+
+            if (!Request.Content.IsMimeMultipartContent())
+            {
+                ErrorInfoDict.Add("content_error", "Request is not multipart typed");
+                return BadRequest(ErrorInfoDict.ToString());
+            }
+
+            else
+            {
+
+                string filePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "DetectionAPI", "UserImages");
+                Directory.CreateDirectory(filePath);
+
+                var multipartFormDataStreamProvider = new MultipartFormDataStreamProvider(filePath);
+
+                Request.Content.LoadIntoBufferAsync().Wait();
+                await Request.Content.ReadAsMultipartAsync(multipartFormDataStreamProvider);
+
+                if (ErrorInfoDict == null)
+                {
+
+                }
+
+                foreach (var file in multipartFormDataStreamProvider.FileData)
+                {
+                    try
+                    {
+
+
+                        if (file.Headers.ContentLength > MaxContentLength)
+                        {
+                            ErrorInfoDict.Add("content_error", $@"A file in a request is larger, than {MaxContentLength}");
+                            return BadRequest(ErrorInfoDict.ToString());
+                        }
+
+
+                        Console.WriteLine(file.Headers.ContentDisposition.FileName);
+                        Console.WriteLine("Server file path: " + file.LocalFileName);
+                    }
+                    catch (Exception exc)
+                    {
+
+                    }
+
+                }
+
+
+
+
+
+
+                return Ok();
+            }
+
+            
+        }
+
+
 
     }
 }

@@ -178,12 +178,14 @@
   <ItemGroup>
     <Compile Include="Controllers\ABCController.cs" />
     <Compile Include="Controllers\AccountController.cs" />
+    <Compile Include="Controllers\ControllerHelpers.cs" />
     <Compile Include="Controllers\DetectController.cs" />
     <Compile Include="Controllers\DetectionController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ImageUploadController.cs" />
     <Compile Include="Controllers\ProductsController.cs" />
     <Compile Include="Controllers\TestController.cs" />
+    <Compile Include="Controllers\UploadController.cs" />
     <Compile Include="Detection\DetectionResult\Coord.cs" />
     <Compile Include="Detection\DetectionResult\DetectionResult.cs" />
     <Compile Include="Detection\DetectionResult\DetectionResultProvider.cs" />
@@ -198,6 +200,7 @@
     <Compile Include="Misc\tmp\Class2.cs" />
     <Compile Include="Misc\tmp\Class3.cs" />
     <Compile Include="Misc\tmp\Class4.cs" />
+    <Compile Include="Misc\tmp\Class5.cs" />
     <Compile Include="Models\ClientDocument\InMemoryMultipartFormDataStreamProvider.cs" />
     <Compile Include="Models\Detect.cs" />
     <Compile Include="Models\HttpRequestModel.cs" />

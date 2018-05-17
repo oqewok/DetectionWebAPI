@@ -10,5 +10,6 @@ namespace DetectionAPI.Detection
     public interface IDetector
     {
         Coord[] Detect();
+        string GetName();
     }
 }

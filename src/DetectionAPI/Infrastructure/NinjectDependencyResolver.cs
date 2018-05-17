@@ -13,6 +13,8 @@ using Ninject.Syntax;
 using Ninject.Activation;
 using Ninject.Parameters;
 using PlateDetector.Detection;
+using DetectionAPI.Controllers;
+using System.Web.Http.Controllers;
 
 namespace DetectionAPI.Infrastructure
 {
@@ -39,22 +41,22 @@ namespace DetectionAPI.Infrastructure
             //works!
             //_kernel.Bind<FakeDetector>().ToSelf().InSingletonScope();
 
-            //works!
-            _kernel.Bind<FakeDetector.Insiderinsider>().ToSelf().WithPropertyValue("InsiderInsiderName", Guid.NewGuid());
-            _kernel.Bind<FakeDetector.FakeDetectorInsider>().ToSelf();
+            ////works!
+            //_kernel.Bind<FakeDetector.Insiderinsider>().ToSelf().WithPropertyValue("InsiderInsiderName", Guid.NewGuid());
+            //_kernel.Bind<FakeDetector.FakeDetectorInsider>().ToSelf();
 
-            //_kernel.Bind<FakeDetector>().ToSelf()
-            //    .InSingletonScope()
-            //    .WithConstructorArgument("FakeDetectorInsider", new FakeDetector.FakeDetectorInsider(new FakeDetector.Insiderinsider()));
-            _kernel.Bind<FakeDetector>().ToSelf().InSingletonScope();
-            //
+            ////_kernel.Bind<FakeDetector>().ToSelf()
+            ////    .InSingletonScope()
+            ////    .WithConstructorArgument("FakeDetectorInsider", new FakeDetector.FakeDetectorInsider(new FakeDetector.Insiderinsider()));
+            //_kernel.Bind<FakeDetector>().ToSelf().InSingletonScope();
+            ////
 
-            _kernel.Bind<IDetectionAlgProvider>().To<FasterRcnnProvider>().InSingletonScope();
-            //_kernel.Bind<FasterRcnn>().ToSelf();
-            _kernel.Bind<IDetectionAlg>().To<FasterRcnn>().InSingletonScope();
-            //_kernel.Bind<FasterRcnnProvider>().ToSelf();
-            _kernel.Bind<AlgManager>().ToSelf().InSingletonScope();
-            _kernel.Bind<Detector>().ToSelf().InSingletonScope();
+            //_kernel.Bind<IDetectionAlgProvider>().To<FasterRcnnProvider>().InSingletonScope();
+            ////_kernel.Bind<FasterRcnn>().ToSelf();
+            //_kernel.Bind<IDetectionAlg>().To<FasterRcnn>().InSingletonScope();
+            ////_kernel.Bind<FasterRcnnProvider>().ToSelf();
+            //_kernel.Bind<AlgManager>().ToSelf().InSingletonScope();
+            //_kernel.Bind<Detector>().ToSelf().InSingletonScope();
 
 
             //_kernel.Bind<FasterRcnnProvider>().ToSelf().InSingletonScope();
@@ -72,6 +74,19 @@ namespace DetectionAPI.Infrastructure
             //    .ToSelf().
             //    InSingletonScope().
             //    WithConstructorArgument("AlgManager", new AlgManager(new FasterRcnnProvider()));
+
+            //_kernel.Bind<IHttpController>().To<DetectController>();
+            //_kernel.Bind<DetectController>().ToSelf().InRequestScope();
+
+            _kernel.Bind<IHttpController>().To<ABCController>().InRequestScope();
+
+            _kernel.Bind<IDetectionAlgProvider>().To<FasterRcnnProvider>().InSingletonScope();
+            _kernel.Bind<FasterRcnn>().ToSelf();
+            _kernel.Bind<IDetectionAlg>().To<FasterRcnn>().InSingletonScope();
+            _kernel.Bind<FasterRcnnProvider>().ToSelf();
+            _kernel.Bind<AlgManager>().ToSelf().InSingletonScope();
+            _kernel.Bind<Detector>().ToSelf().InSingletonScope();
+            _kernel.Bind<IDetector>().To<FakeDetector>().InSingletonScope();
         }
 
     }

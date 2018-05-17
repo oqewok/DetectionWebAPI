@@ -36,21 +36,30 @@ namespace DetectionAPI.Controllers
 
         public FakeDetector f_detector;
 
-        public ABCController()
-        {
+        public IDetector idetector;
 
-        }
+        public IKernel Kernel;
+
+        //public ABCController()
+        //{
+
+        //}
 
         //public ABCController(FakeDetector fd)
         //{
         //    f_detector = fd;
         //}
 
-        public ABCController(Detector detector, FakeDetector fd)
-        {
-            det = detector;
-            f_detector = fd;
+        //public ABCController(Detector detector, FakeDetector fd)
+        //{
+        //    det = detector;
+        //    f_detector = fd;
 
+        //}
+
+        public ABCController(IKernel kernel)
+        {
+            Kernel = kernel;
         }
 
         [HttpGet]
@@ -67,6 +76,8 @@ namespace DetectionAPI.Controllers
             {
                 //detector
                 //Detector det = new Detector(new AlgManager(new FasterRcnnProvider()));
+                det = Kernel.TryGet<Detector>();
+
                 if (det == null) return BadRequest();
 
                 var det_result = det.Detect(image1);
@@ -92,10 +103,31 @@ namespace DetectionAPI.Controllers
         {
             Console.WriteLine("Hi, fake");
 
+            for (int i = 0; i < 10; i++)
+            {
+                //var dr = Configuration.DependencyResolver;
+                idetector = Kernel.TryGet<IDetector>();
+                Console.WriteLine(idetector.GetName());
+            }
+
             if (f_detector == null) { return BadRequest(); }
+
+           
+            
 
             var res = f_detector.Detect();
 
+            ///
+            //IKernel kernel = new StandardKernel();
+            //kernel.Bind<IDetector>().To<FakeDetector>().InSingletonScope();
+
+            //IDetector detector;
+
+            //for (int i = 0; i < 10; i++)
+            //{
+            //    detector = kernel.TryGet<IDetector>();
+            //    Console.WriteLine(detector.TakeName());
+            //}
 
 
             return Ok(res);
