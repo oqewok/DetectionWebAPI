@@ -9,17 +9,17 @@ namespace DetectionAPI.Database.Entities
 {
     public class Session
     {
-        public int SessionId { get; set; }
+        public long SessionId { get; set; }
 
-        public int ImageCount { get; set; }
+        public long ImageCount { get; set; }
 
-        public int PlatesCount { get; set; }
+        public long PlatesCount { get; set; }
 
         public DateTime CreationTime { get; set; }
 
         public DateTime ExpiryDate { get; set; }
 
-        public int SessionType { get; set; }
+        public long SessionType { get; set; }
 
         public bool IsLimitReached { get; set; }
     }

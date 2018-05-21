@@ -9,17 +9,17 @@ namespace DetectionAPI.Database.Entities
 {
     public class ImageInfo
     {
-        public int ImageId { get; set; }
+        public long ImageId { get; set; }
 
         public string ImagePath { get; set; }
 
         public string MarkupPath { get; set; }
 
-        public int PlatesCount { get; set; }
+        public long PlatesCount { get; set; }
 
-        public int UserId { get; set; }
+        public long UserId { get; set; }
 
-        public int SessionId { get; set; }
+        public long SessionId { get; set; }
 
         public DateTime UploadDate { get; set; }
 

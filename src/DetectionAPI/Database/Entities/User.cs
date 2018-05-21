@@ -9,9 +9,9 @@ namespace DetectionAPI.Database.Entities
 {
     public class User
     {
-        public int UserId { get; set; }
+        public long UserId { get; set; }
 
-        public int UserType { get; set; }
+        public long UserType { get; set; }
 
         public DateTime CreationTime { get; set; }
 
@@ -21,7 +21,7 @@ namespace DetectionAPI.Database.Entities
 
         public string AccessToken { get; set; }
 
-        public int CurrentSessionId { get; set; }  
+        public long CurrentSessionId { get; set; }  
 
     }
 }
