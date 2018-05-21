@@ -70,6 +70,12 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.IdentityModel.Logging, Version=5.2.2.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Microsoft.IdentityModel.Logging.5.2.2\lib\net451\Microsoft.IdentityModel.Logging.dll</HintPath>
     </Reference>
@@ -187,6 +193,10 @@
     <Compile Include="Controllers\StatusController.cs" />
     <Compile Include="Controllers\TestController.cs" />
     <Compile Include="Controllers\UploadController.cs" />
+    <Compile Include="Database\ApiDbContext.cs" />
+    <Compile Include="Database\Entities\ImageInfo.cs" />
+    <Compile Include="Database\Entities\Session.cs" />
+    <Compile Include="Database\Entities\User.cs" />
     <Compile Include="Detection\DetectionResult\Coord.cs" />
     <Compile Include="Detection\DetectionResult\DetectionResult.cs" />
     <Compile Include="Detection\DetectionResult\DetectionResultProvider.cs" />
