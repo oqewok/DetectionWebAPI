@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DetectionAPI.Database;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.IO;
@@ -408,6 +409,32 @@ namespace DetectionAPI.Controllers
 
                 return s;
             }
+        }
+
+
+        [HttpGet]
+        [Route("api/db")]
+        public IHttpActionResult Db()
+        {
+            try
+            {
+                ApiDbContext dbContext = new ApiDbContext();
+
+                var allUsers = dbContext.Users;
+
+                foreach(var u in allUsers)
+                {
+                    Console.WriteLine(u.ToString());
+                }
+                
+            }
+
+            catch(Exception exc)
+            {
+
+            }
+
+            return Ok();
         }
     }
 }

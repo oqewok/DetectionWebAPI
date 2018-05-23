@@ -1,14 +1,57 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Data.Entity;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Data.Entity.Infrastructure.Annotations;
+using System.Data.Entity.ModelConfiguration;
+using System.Runtime.Serialization;
 
 namespace DetectionAPI.Database.Entities
 {
-    public class ImageInfo
+    public sealed class ImageInfo
     {
+        #region Configuration
+
+        public sealed class ImageInfoConfiguration : EntityTypeConfiguration<ImageInfo>
+        {
+            public ImageInfoConfiguration()
+            {
+                ToTable("ImageInfo");
+
+                HasKey(e => e.ImageId);
+
+                Property(e => e.ImageId)
+                    .IsRequired()
+                    .HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+
+                Property(e => e.ImagePath)
+                    .IsRequired()
+                    .HasMaxLength(250)
+                    .IsUnicode();
+
+                Property(e => e.MarkupPath)
+                    .HasMaxLength(250)
+                    .IsUnicode();
+
+                Property(e => e.PlatesCount)
+                    .IsRequired();
+
+                Property(e => e.UserId)
+                    .IsRequired();
+
+                Property(e => e.SessionId)
+                    .IsRequired();
+
+                Property(e => e.UploadDate)
+                    .IsRequired();
+            }
+        }
+
+        public static EntityTypeConfiguration<ImageInfo> CreateConfiguration() => new ImageInfoConfiguration();
+
+        #endregion
+
+
+        #region Properties
+
         public long ImageId { get; set; }
 
         public string ImagePath { get; set; }
@@ -22,6 +65,8 @@ namespace DetectionAPI.Database.Entities
         public long SessionId { get; set; }
 
         public DateTime UploadDate { get; set; }
+
+        #endregion
 
     }
 }

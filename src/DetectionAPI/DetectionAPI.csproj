@@ -194,6 +194,7 @@
     <Compile Include="Controllers\TestController.cs" />
     <Compile Include="Controllers\UploadController.cs" />
     <Compile Include="Database\ApiDbContext.cs" />
+    <Compile Include="Database\Entities\ApiDbContextInitializer.cs" />
     <Compile Include="Database\Entities\ImageInfo.cs" />
     <Compile Include="Database\Entities\Session.cs" />
     <Compile Include="Database\Entities\User.cs" />
