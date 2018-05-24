@@ -29,11 +29,22 @@ using Ninject;
 using OpenCvSharp;
 using DetectionAPI.Database;
 using DetectionAPI.Database.Entities;
+using System.Threading;
 
 namespace DetectionAPI.Controllers
 {
     public class FinalAccountController : ApiController
     {
+        /// <summary>
+        /// Create new user, FromBody parameter should be passed
+        /// as raw application/json:
+        /// {
+        ///     username : "username@example.com",
+        ///     password : "example_password" 
+        /// }
+        /// </summary>
+        /// <param name="postedValues"></param>
+        /// <returns></returns>
         [HttpPost]
         [Route("api/f/account/new")]
         public IHttpActionResult AccountNew([FromBody] PostedUsernamePassword postedValues)
@@ -79,10 +90,74 @@ namespace DetectionAPI.Controllers
             return Ok();
         }
 
+        /// <summary>
+        /// Returns token when FromBody parameter
+        /// have been passed as raw application/json:
+        /// {
+        ///     username : "username@example.com",
+        ///     password : "example_password" 
+        /// }
+        /// </summary>
+        /// <param name="postedValues"></param>
+        /// <returns></returns>
+        //[HttpPost]
+        //[Route("api/f/account/token", Name = "GetAccessTokenRawJsonParameter")]
+        //public IHttpActionResult Token([FromBody] PostedUsernamePassword postedValues)
+        //{
+          
+        //    var tokenDict = new Dictionary<string, string>();
+        //    tokenDict.Add("token", Guid.NewGuid().ToString());
+
+
+        //    //routeValues can be formed like: new { username = postedValues.Username, password = postedValues.Password }
+        //    //and appears as Location Header in response - %route%?username=Value&password=Value
+        //    //content: dict values appears in body of response
+        //    return CreatedAtRoute(routeName: "GetAccessTokenRawJsonParameter", routeValues: new {}, content: tokenDict);
+
+
+        //    //!!!!!! BASE64 STRING IN HEADER !!!!!
+        //    // so not like above with FromBody
+
+        //    //check username/password
+
+        //    //get or create new token
+
+        //    //return token
+        //}
+
+        /// <summary>
+        /// Returns token when basic auth credentials given
+        /// Checks if user exists in filter
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        [RealBasicAuthenticationFilter]
+        [Route("api/f/account/token", Name = "GetAccessTokenHeaderParameter")]
         public IHttpActionResult Token()
         {
-            return NotFound();
+            var name = Thread.CurrentPrincipal.Identity.Name;
+            var authType = Thread.CurrentPrincipal.Identity.AuthenticationType;
+            var isAuthentificated = Thread.CurrentPrincipal.Identity.IsAuthenticated;
+
+
+            var token = Guid.NewGuid().ToString();
+
+            using(var dbContext = new ApiDbContext())
+            {
+                var certainUser = dbContext.Set<User>().Where(p => p.Username == name).ToList().FirstOrDefault();
+                if(certainUser != null)
+                {
+                    certainUser.AccessToken = token;
+                    dbContext.SaveChanges();
+                }
+
+            }
+
+            var tokenDict = new Dictionary<string, string>();
+            tokenDict.Add("token", token);
+            return CreatedAtRoute(routeName: "GetAccessTokenHeaderParameter", routeValues: new {}, content: tokenDict);
         }
+
 
         public IHttpActionResult TokenRefresh()
         {
