@@ -181,7 +181,7 @@ namespace DbAndLogging.Database
 
             public string AccessToken { get; set; }
 
-            public long CurrentSessionId { get; set; }
+            public long? CurrentSessionId { get; set; }
 
             #endregion
 

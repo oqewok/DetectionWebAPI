@@ -61,7 +61,7 @@ namespace DetectionAPI.Database.Entities
 
         //FK
 
-        public long SessionId { get; set; }
+        public long? SessionId { get; set; }
 
         //public List<Session> Sessions { get; set; }
 

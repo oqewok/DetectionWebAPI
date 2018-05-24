@@ -1,12 +1,14 @@
 ﻿using System.Web.Http;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
+using DetectionAPI.Filters;
 
 namespace DetectionAPI.Controllers
 {
     public class StatusController : ApiController
     {
         [HttpGet]
+        [AllowAnonymous]
         [Route("api/status")]
         public IHttpActionResult Status()
         {
