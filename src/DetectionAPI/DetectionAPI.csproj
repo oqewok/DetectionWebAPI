@@ -198,6 +198,7 @@
     <Compile Include="Database\Entities\ImageInfo.cs" />
     <Compile Include="Database\Entities\Session.cs" />
     <Compile Include="Database\Entities\User.cs" />
+    <Compile Include="Database\UsersRepository.cs" />
     <Compile Include="Detection\DetectionResult\Coord.cs" />
     <Compile Include="Detection\DetectionResult\DetectionResult.cs" />
     <Compile Include="Detection\DetectionResult\DetectionResultProvider.cs" />

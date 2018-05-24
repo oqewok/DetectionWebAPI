@@ -16,7 +16,7 @@ namespace DetectionAPI.Database
             System.Data.Entity.Database.SetInitializer(new ApiDbContextInitializer());
         }
 
-        public ApiDbContext() : base ("DetectionApiDatabase")
+        public ApiDbContext() : base("DetectionApiDatabase")
         {
 
         }
@@ -46,6 +46,24 @@ namespace DetectionAPI.Database
             modelBuilder
                 .Configurations
                 .Add(ImageInfo.CreateConfiguration());
+
+            //modelBuilder
+            //    .Entity<User>()
+            //    .HasMany(c => c.Sessions)
+            //    .WithRequired(e => e.User)
+            //    .HasForeignKey(o => o.Id);
+
+            //modelBuilder
+            //    .Entity<Session>()
+            //    .HasRequired(c => c.User)
+            //    .WithMany(e => e.Sessions)
+            //    .HasForeignKey(o => o.UserId);
+
+            //modelBuilder
+            //    .Entity<ImageInfo>()
+            //    .HasRequired(e => e.Session)
+            //    .WithMany(e => e.Images)
+            //    .HasForeignKey(o => o.SessionId);
 
             base.OnModelCreating(modelBuilder);
         }

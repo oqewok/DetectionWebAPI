@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Entity.Infrastructure.Annotations;
 using System.Data.Entity.ModelConfiguration;
@@ -6,7 +7,7 @@ using System.Runtime.Serialization;
 
 namespace DetectionAPI.Database.Entities
 {
-    public sealed class User
+    public class User
     {
         #region Configuration
 
@@ -14,12 +15,10 @@ namespace DetectionAPI.Database.Entities
         {
             public UserConfiguration()
             {
-                
-
                 ToTable("Users");
-                HasKey(e => e.UserId);
+                HasKey(e => e.Id);
 
-                Property(e => e.UserId)
+                Property(e => e.Id)
                     .IsRequired()
                     .HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
 
@@ -47,7 +46,8 @@ namespace DetectionAPI.Database.Entities
 
         #region Properties
 
-        public long UserId { get; set; }
+        //PK
+        public long Id { get; set; }
 
         public long UserType { get; set; }
 
@@ -59,11 +59,23 @@ namespace DetectionAPI.Database.Entities
 
         public string AccessToken { get; set; }
 
-        public long CurrentSessionId { get; set; }
+        //FK
+
+        public long SessionId { get; set; }
+
+        //public List<Session> Sessions { get; set; }
+
+        [ForeignKey("SessionId")]
+        public virtual ICollection<Session> Sessions { get; set; }
+
+        public User()
+        {
+            Sessions = new List<Session>();
+        }
 
         #endregion
 
-        public override string ToString() => $@"Id :{UserId}, User type: {UserType}, Created: {CreationTime}, Username: {Username}, Password: {Password}, AccessToken: {AccessToken}, SeesionId: {CurrentSessionId}";
+        public override string ToString() => $@"Id :{Id}, User type: {UserType}, Created: {CreationTime}, Username: {Username}, Password: {Password}, AccessToken: {AccessToken}, SessionId: {SessionId}";
 
     }
 }

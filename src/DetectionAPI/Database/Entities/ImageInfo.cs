@@ -6,7 +6,7 @@ using System.Runtime.Serialization;
 
 namespace DetectionAPI.Database.Entities
 {
-    public sealed class ImageInfo
+    public class ImageInfo
     {
         #region Configuration
 
@@ -60,13 +60,25 @@ namespace DetectionAPI.Database.Entities
 
         public long PlatesCount { get; set; }
 
+        ////FK
         public long UserId { get; set; }
+
+        //FK
 
         public long SessionId { get; set; }
 
         public DateTime UploadDate { get; set; }
 
+        ////Navigational property
+        //public virtual User User { get; set; }
+
+        //Navigational property
+        [ForeignKey("SessionId")]
+        public virtual Session Session { get; set; }
+
         #endregion
 
+        public override string ToString() => $@"ImageId: {ImageId}, ImagePath:{ImagePath}, MarkupPath: {MarkupPath}, PlatesCount: {PlatesCount}, UserId: {UserId}, SessionId: {SessionId}, UploadDate: {UploadDate}";
+        //public override string ToString() => $@"ImageId: {ImageId}, ImagePath:{ImagePath}, MarkupPath: {MarkupPath}, PlatesCount: {PlatesCount}, SessionId: {SessionId}, UploadDate: {UploadDate}";
     }
 }

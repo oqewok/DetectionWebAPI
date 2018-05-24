@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Entity.Infrastructure.Annotations;
 using System.Data.Entity.ModelConfiguration;
@@ -6,7 +7,7 @@ using System.Runtime.Serialization;
 
 namespace DetectionAPI.Database.Entities
 {
-    public sealed class Session
+    public class Session
     {
         #region Configuration
         public sealed class SessionConfiguration : EntityTypeConfiguration<Session>
@@ -15,9 +16,9 @@ namespace DetectionAPI.Database.Entities
             {
                 ToTable("Sessions");
 
-                HasKey(e => e.SessionId);
+                HasKey(e => e.Id);
 
-                Property(e => e.SessionId)
+                Property(e => e.Id)
                     .IsRequired()
                     .HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
 
@@ -49,7 +50,8 @@ namespace DetectionAPI.Database.Entities
 
         #region Properties
 
-        public long SessionId { get; set; }
+        //PK
+        public long Id { get; set; }
 
         public long ImageCount { get; set; }
 
@@ -63,6 +65,24 @@ namespace DetectionAPI.Database.Entities
 
         public bool IsLimitReached { get; set; }
 
+        //FK
+
+        public long UserId { get; set; }
+
+        [ForeignKey("UserId")]
+        //Navigetional property
+        public virtual User User { get; set; }
+
+        public virtual ICollection<ImageInfo> Images { get; set; }
+
         #endregion
+
+        public Session()
+        {
+            Images = new List<ImageInfo>();
+        }
+
+
+        public override string ToString() => $@"Id: {Id}, ImageCount: {ImageCount}, PlatesCount: {PlatesCount}, Created: {CreationTime}, Expiry: {ExpiryDate}, SessionType: {SessionType}, IsLimitReached: {IsLimitReached}, UserId: {UserId}";
     }
 }
