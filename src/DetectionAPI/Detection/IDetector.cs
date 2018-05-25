@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace DetectionAPI.Detection
 {
-    public interface IDetector
+    public interface IFakeDetector
     {
         Coord[] Detect();
         string GetName();

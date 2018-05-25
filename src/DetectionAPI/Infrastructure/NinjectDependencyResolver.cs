@@ -86,7 +86,7 @@ namespace DetectionAPI.Infrastructure
             _kernel.Bind<FasterRcnnProvider>().ToSelf();
             _kernel.Bind<AlgManager>().ToSelf().InSingletonScope();
             _kernel.Bind<Detector>().ToSelf().InSingletonScope();
-            _kernel.Bind<IDetector>().To<FakeDetector>().InSingletonScope();
+            _kernel.Bind<IFakeDetector>().To<FakeDetector>().InSingletonScope();
         }
 
     }

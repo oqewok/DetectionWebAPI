@@ -36,7 +36,7 @@ namespace DetectionAPI.Controllers
 
         public FakeDetector f_detector;
 
-        public IDetector idetector;
+        public IFakeDetector idetector;
 
         public IKernel Kernel;
 
@@ -106,7 +106,7 @@ namespace DetectionAPI.Controllers
             for (int i = 0; i < 10; i++)
             {
                 //var dr = Configuration.DependencyResolver;
-                idetector = Kernel.TryGet<IDetector>();
+                idetector = Kernel.TryGet<IFakeDetector>();
                 Console.WriteLine(idetector.GetName());
             }
 

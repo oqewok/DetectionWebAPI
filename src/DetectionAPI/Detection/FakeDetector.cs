@@ -9,7 +9,7 @@ using System.IO;
 
 namespace DetectionAPI.Detection
 {
-    public class FakeDetector : IDetector
+    public class FakeDetector : IFakeDetector
     {
         private Coord[] Coordinates { get; set; }
         public Guid Name { get; set; }

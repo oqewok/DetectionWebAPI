@@ -215,7 +215,6 @@
     <Compile Include="Misc\tmp\Class2.cs" />
     <Compile Include="Misc\tmp\Class3.cs" />
     <Compile Include="Misc\tmp\Class4.cs" />
-    <Compile Include="Misc\tmp\Class5.cs" />
     <Compile Include="Models\ClientDocument\InMemoryMultipartFormDataStreamProvider.cs" />
     <Compile Include="Models\Detect.cs" />
     <Compile Include="Models\HttpRequestModel.cs" />
