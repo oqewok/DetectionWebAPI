@@ -138,29 +138,55 @@ namespace DetectionAPI.Controllers
             var authType = Thread.CurrentPrincipal.Identity.AuthenticationType;
             var isAuthentificated = Thread.CurrentPrincipal.Identity.IsAuthenticated;
 
+            var tokenDict = new Dictionary<string, string>();
 
-            var token = Guid.NewGuid().ToString();
+            var message = "message";
+            var token = "User does not exist";
 
-            using(var dbContext = new ApiDbContext())
+            using (var dbContext = new ApiDbContext())
             {
                 var certainUser = dbContext.Set<User>().Where(p => p.Username == name).ToList().FirstOrDefault();
+
                 if(certainUser != null)
                 {
-                    certainUser.AccessToken = token;
-                    dbContext.SaveChanges();
+                    message = "token";
+                    token = certainUser.AccessToken;
                 }
-
             }
 
-            var tokenDict = new Dictionary<string, string>();
-            tokenDict.Add("token", token);
+            tokenDict.Add(message, token);
             return CreatedAtRoute(routeName: "GetAccessTokenHeaderParameter", routeValues: new {}, content: tokenDict);
         }
 
-
+        [HttpPost]
+        [RealBasicAuthenticationFilter]
+        [Route("api/f/account/token/refresh", Name = "RefreshAccessTokenHeaderParameter")]
         public IHttpActionResult TokenRefresh()
         {
-            return NotFound();
+            var username = Thread.CurrentPrincipal.Identity.Name;
+            var authType = Thread.CurrentPrincipal.Identity.AuthenticationType;
+            var isAuthentificated = Thread.CurrentPrincipal.Identity.IsAuthenticated;
+
+            var tokenDict = new Dictionary<string, string>();
+
+            var message = "message";
+            var token = "User does not exist";
+
+            using (var dbContext = new ApiDbContext())
+            {
+                var certainUser = dbContext.Set<User>().Where(p => p.Username == username).ToList().FirstOrDefault();
+
+                if (certainUser != null)
+                {
+                    message = "token";
+                    token = Guid.NewGuid().ToString("N");
+                    certainUser.AccessToken = token;
+                    dbContext.SaveChanges();
+                }
+            }
+
+            tokenDict.Add(message, token);
+            return CreatedAtRoute(routeName: "GetAccessTokenHeaderParameter", routeValues: new { }, content: tokenDict);
         }
 
         public IHttpActionResult AccountStats()
