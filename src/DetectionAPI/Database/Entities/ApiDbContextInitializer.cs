@@ -14,21 +14,21 @@ namespace DetectionAPI.Database.Entities
             {
                 new User
                 {
-                    AccessToken = "test_api_token1234",
+                    AccessToken = "internal_unlimited_access_token1234",
                     CreationTime = DateTime.Now,
                     SessionId = 1,
-                    Password = "api_pass1234q",
-                    Username = "api_user1234q",
+                    Password = "internal_unlimited_access",
+                    Username = "internal@unlimited.access",
                     UserType = 2,
                 },
 
                 new User
                 {
-                    AccessToken = "test_api_token1234_2",
+                    AccessToken = "external_limited_access_token1234",
                     CreationTime = DateTime.Now,
                     SessionId = 2,
-                    Password = "api_pass1234q_2",
-                    Username = "api_user1234q_2",
+                    Password = "external_limited_access",
+                    Username = "external@limited.access",
                     UserType = 0
                 }
             };
@@ -63,8 +63,8 @@ namespace DetectionAPI.Database.Entities
             {
                 new ImageInfo
                 {
-                    ImagePath = Path.Combine(Directory.GetCurrentDirectory(), "Images"),
-                    MarkupPath = Path.Combine(Directory.GetCurrentDirectory(), "Markup"),
+                    ImagePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "DetectionAPI", "Images"),
+                    MarkupPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "DetectionAPI", "Markup"),
                     PlatesCount = 1,
                     Session = sessions[0],
                     UploadDate = DateTime.Now,
@@ -74,8 +74,8 @@ namespace DetectionAPI.Database.Entities
 
                 new ImageInfo
                 {
-                    ImagePath = Path.Combine(Directory.GetCurrentDirectory(), "Images"),
-                    MarkupPath = Path.Combine(Directory.GetCurrentDirectory(), "Markup"),
+                    ImagePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "DetectionAPI", "Images"),
+                    MarkupPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "DetectionAPI", "Markup"),
                     PlatesCount = 2,
                     Session = sessions[0],
                     UploadDate = DateTime.Now,
@@ -83,8 +83,6 @@ namespace DetectionAPI.Database.Entities
                     UserId = 1
                 },
             };
-
-
 
             context.Users.AddRange(users);
             context.Sessions.AddRange(sessions);
