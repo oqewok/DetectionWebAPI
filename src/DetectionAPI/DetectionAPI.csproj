@@ -194,6 +194,7 @@
     <Compile Include="Controllers\ProductsController.cs" />
     <Compile Include="Controllers\StatusController.cs" />
     <Compile Include="Controllers\TestController.cs" />
+    <Compile Include="Controllers\TestingTokensController.cs" />
     <Compile Include="Controllers\UploadController.cs" />
     <Compile Include="Database\ApiDbContext.cs" />
     <Compile Include="Database\Entities\ApiDbContextInitializer.cs" />
@@ -209,7 +210,10 @@
     <Compile Include="Detection\IDetector.cs" />
     <Compile Include="Filters\BasicAuthenticationFilter.cs" />
     <Compile Include="Filters\BasicAuthenticationIdentity.cs" />
+    <Compile Include="Filters\BearerAuthenticationFilter.cs" />
+    <Compile Include="Filters\BearerAuthenticationIdentity.cs" />
     <Compile Include="Filters\RealBasicAuthenticationFilter.cs" />
+    <Compile Include="Filters\RealBearerAuthenticationFilter.cs" />
     <Compile Include="Infrastructure\NinjectDependencyResolver.cs" />
     <Compile Include="Misc\tmp\Class1.cs" />
     <Compile Include="Misc\tmp\Class2.cs" />

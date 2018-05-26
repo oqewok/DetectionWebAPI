@@ -72,8 +72,7 @@ namespace DetectionAPI.Controllers
                 {
                     var newUser = new User
                     {
-                        //TODO : access tokens are not implemented
-                        AccessToken = "token1234",
+                        AccessToken = Guid.NewGuid().ToString("N"),
                         CreationTime = DateTime.Now,
                         Password = postedValues.Password,
                         SessionId = -1,
@@ -174,8 +173,6 @@ namespace DetectionAPI.Controllers
         {
             return NotFound();
         }
-
-
 
         public class PostedUsernamePassword
         {

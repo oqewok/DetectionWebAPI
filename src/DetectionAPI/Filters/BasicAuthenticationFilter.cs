@@ -139,7 +139,7 @@ namespace DetectionAPI.Filters
         {
             var host = actionContext.Request.RequestUri.DnsSafeHost;
             actionContext.Response = actionContext.Request.CreateResponse(HttpStatusCode.Unauthorized);
-            actionContext.Response.Headers.Add("WWW-Authenticate", string.Format("Basic realm=\"{0}\"", host));
+            actionContext.Response.Headers.Add("WWW-Authenticate", $@"Basic \{host}\");
         }
 
     }
