@@ -162,15 +162,24 @@ namespace DetectionAPI.Controllers
             var message = "message";
             var token = "User does not exist";
 
+            long userId = -1;
+
             using (var dbContext = new ApiDbContext())
             {
                 var certainUser = dbContext.Set<User>().Where(p => p.Username == name).ToList().FirstOrDefault();
 
                 if(certainUser != null)
                 {
+                    userId = certainUser.Id;
                     message = "token";
                     token = certainUser.AccessToken;
                 }
+            }
+
+            //Check if last session is expired and create new in that case
+            if (userId != -1)
+            {
+                CheckExpirySessionByUserId(userId);
             }
 
             tokenDict.Add(message, token);
@@ -191,17 +200,26 @@ namespace DetectionAPI.Controllers
             var message = "message";
             var token = "User does not exist";
 
+            long userId = -1;
+
             using (var dbContext = new ApiDbContext())
             {
                 var certainUser = dbContext.Set<User>().Where(p => p.Username == username).ToList().FirstOrDefault();
 
                 if (certainUser != null)
                 {
+                    userId = certainUser.Id;
                     message = "token";
                     token = Guid.NewGuid().ToString("N");
                     certainUser.AccessToken = token;
                     dbContext.SaveChanges();
                 }
+            }
+
+            //Check if last session is expired and create new in that case
+            if (userId != -1)
+            {
+                CheckExpirySessionByUserId(userId);
             }
 
             tokenDict.Add(message, token);
@@ -219,7 +237,7 @@ namespace DetectionAPI.Controllers
         public IHttpActionResult AccountLimits()
         {
             var authorizedUserToken = Thread.CurrentPrincipal.Identity.Name;
-            long id = 0;
+            long userId = -1;
 
             using (var dbContext = new ApiDbContext())
             {
@@ -227,13 +245,23 @@ namespace DetectionAPI.Controllers
 
                 if (user != null)
                 {
-                    id = user.Id;
+                    userId = user.Id;
                 }
             }
 
-            var currentLimitInfo = CheckLimitByUserId(id);
+            if (userId != -1)
+            {
+                var currentLimitInfo = CheckLimitByUserId(userId);
+                return Ok(currentLimitInfo);
+            }
 
-            return Ok(currentLimitInfo);
+            else
+            {
+                return BadRequest();
+            }
+            
+
+            
         }
 
         public class PostedUsernamePassword
@@ -305,6 +333,10 @@ namespace DetectionAPI.Controllers
 
                     dbContext.Sessions.Add(newSession);
                     dbContext.SaveChanges();
+
+                    var createdSession = dbContext.Set<Session>().Where(p => p.UserId == userId).ToList().LastOrDefault();
+                    userByUserId.SessionId = createdSession.Id;
+                    dbContext.SaveChanges();
                 }
             }
         }
@@ -339,10 +371,10 @@ namespace DetectionAPI.Controllers
         
 
         /// <summary>
-        /// Check session on limits and returns
+        /// Check session on limits and sets flags if limit is reached
         /// </summary>
         /// <param name="userId"></param>
-        /// <returns></returns>
+        /// <returns><see cref="AvailableLimits"/></returns>
         public AvailableLimits CheckLimitByUserId(long userId)
         {
             var availableLimits = new AvailableLimits
