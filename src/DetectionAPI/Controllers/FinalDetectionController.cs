@@ -28,22 +28,46 @@ using System.Diagnostics;
 using Ninject;
 using OpenCvSharp;
 using System.Runtime.Serialization;
+using System.Threading;
+using PlateDetector.Detection;
 
 namespace DetectionAPI.Controllers
 {
     public class FinalDetectionController : ApiController
     {
         [HttpPost]
-        [RealBasicAuthenticationFilter]
+        [RealBearerAuthenticationFilter]
         [Route("api/f/detection")]
         public IHttpActionResult Detection([FromUri] string algorythm)
         {
+            var authorizedUserToken = Thread.CurrentPrincipal.Identity.Name;
+
             //check if algorythm passed in URI
             if (algorythm != null)
             {
                 if (algorythm == "neuro")
                 {
                     AlgorythmType = AvailableAlgs.Neuro;
+
+                    //
+                    try
+                    {
+                        Bitmap image1 = new Bitmap("E:\\rus_car_front.jpg");
+
+                        var networkDetector = new Detector(new AlgManager(new FasterRcnnProvider()));
+
+                        var detResult = networkDetector.Detect(image1);
+
+                        return Ok(detResult);
+                    }
+
+                    catch(Exception exc)
+                    {
+                        Console.WriteLine(exc.Message);
+                        Console.WriteLine(exc.StackTrace);
+                    }
+
+                    return BadRequest();
                 }
 
                 else if (algorythm == "haar")
