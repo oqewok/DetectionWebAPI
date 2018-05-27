@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DetectionAPI.Controllers
+namespace DetectionAPI.Helpers
 {
     public static class LimitValues
     {

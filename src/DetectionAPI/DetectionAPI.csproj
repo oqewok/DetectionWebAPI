@@ -191,7 +191,8 @@
     <Compile Include="Controllers\FinalDetectionController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ImageUploadController.cs" />
-    <Compile Include="Controllers\LimitValues.cs" />
+    <Compile Include="Helpers\CheckHelper.cs" />
+    <Compile Include="Helpers\LimitValues.cs" />
     <Compile Include="Controllers\ProductsController.cs" />
     <Compile Include="Controllers\StatusController.cs" />
     <Compile Include="Controllers\TestController.cs" />
@@ -215,6 +216,7 @@
     <Compile Include="Filters\BearerAuthenticationIdentity.cs" />
     <Compile Include="Filters\RealBasicAuthenticationFilter.cs" />
     <Compile Include="Filters\RealBearerAuthenticationFilter.cs" />
+    <Compile Include="Helpers\AvailableLimits.cs" />
     <Compile Include="Infrastructure\NinjectDependencyResolver.cs" />
     <Compile Include="Misc\tmp\Class1.cs" />
     <Compile Include="Misc\tmp\Class2.cs" />
