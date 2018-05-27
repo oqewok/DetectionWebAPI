@@ -54,9 +54,11 @@ namespace DetectionAPI.Controllers
                     {
                         Bitmap image1 = new Bitmap("E:\\rus_car_front.jpg");
 
+                        var detResult = null as PlateDetector.Detection.DetectionResult;
+
                         var networkDetector = new Detector(new AlgManager(new FasterRcnnProvider()));
 
-                        var detResult = networkDetector.Detect(image1);
+                        detResult = networkDetector.Detect(image1);
 
                         return Ok(detResult);
                     }
