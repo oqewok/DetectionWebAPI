@@ -33,11 +33,16 @@ using PlateDetector.Detection;
 using DetectionAPI.Helpers;
 using DetectionAPI.Database;
 using DetectionAPI.Database.Entities;
+using System.Data.Entity.Infrastructure;
+using System.Data.Entity;
+using System.Data.Entity.Core.Objects;
 
 namespace DetectionAPI.Controllers
 {
     public class FinalDetectionController : ApiController
     {
+        ApiDbContext dbc;
+
         [HttpPost]
         [RealBearerAuthenticationFilter]
         [Route("api/f/detection")]
@@ -111,16 +116,134 @@ namespace DetectionAPI.Controllers
                 //Set current SessionId for updating session data (images count and plates count)
                 var currentSessionId = CheckHelper.CheckExpirySessionByUserId(currentUserId);
 
-                //TODO : You are here
-                //check if multipart/form-data
+                
+                //Check if multipart/form-data
                 if (!Request.Content.IsMimeMultipartContent())
                 {
                     var msg = new AlgNotSelectedMessage
                     {
-                        MessageText = "Your content should be POST and multipart/form-data",
+                        MessageText = "Your request shold be POST and content should be an image as multipart/form-data",
                     };
 
                     return BadRequest(msg.MessageText);
+                }
+
+                //TODO : You are here
+                //Load and save image, create record with new ImageInfo (in Images table)
+                if (Request.Content.IsMimeMultipartContent())
+                {
+                    //For larger files, this might need to be added:
+                    //Request.Content.LoadIntoBufferAsync().Wait();
+                    try
+                    {
+                        Request.Content.LoadIntoBufferAsync().Wait();
+                        Request.Content.ReadAsMultipartAsync<MultipartMemoryStreamProvider>(
+                            new MultipartMemoryStreamProvider()).ContinueWith((task) =>
+                            {
+                                MultipartMemoryStreamProvider provider = task.Result;
+
+                                foreach (HttpContent content in provider.Contents)
+                                {
+                                    Stream stream = content.ReadAsStreamAsync().Result;
+                                    Image image = Image.FromStream(stream);
+                                    var testName = content.Headers.ContentDisposition.Name;
+                                    //String filePath = HostingEnvironment.MapPath("~/Images/");
+                                    string filePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "DetectionAPI", "Images", currentUserId.ToString());
+                                    Directory.CreateDirectory(filePath);
+
+                                    //Note that the ID is pushed to the request header,
+                                    //not the content header:
+                                    //String[] headerValues = (String[])Request.Headers.GetValues("image_token");
+                                    string headerValues = "image";
+
+                                    var origNameAndExtension = content.Headers.ContentDisposition.FileName.Trim('\"');
+                                    var origName = Path.GetFileNameWithoutExtension(origNameAndExtension);
+
+                                    //string fileName = headerValues + "_" + origName + "_" + Guid.NewGuid().ToString() + ".jpg";
+                                    string fileName = currentSessionId.ToString() + Guid.NewGuid().ToString() + ".jpg";
+
+                                    //string tmpName = Guid.NewGuid().ToString();
+                                    //String fileName = tmpName + ".jpg";
+                                    string fullPath = Path.Combine(filePath, fileName);
+
+                                    var newImage = new ImageInfo
+                                    {
+                                        ImagePath = fullPath,
+                                        PlatesCount = 0,
+                                        SessionId = currentSessionId,
+                                        UploadDate = DateTime.Now,
+                                        UserId = currentSessionId,
+                                    };
+
+
+                                    using (var dbContext = new ApiDbContext())
+                                    {
+                                        using (var transaction = dbContext.Database.BeginTransaction())
+                                        {
+                                            try
+                                            {
+                                                dbContext.Images.Add(newImage);
+                                                dbContext.SaveChanges();
+                                                transaction.Commit();
+                                            }
+
+                                            catch(Exception exc)
+                                            {
+                                                transaction.Rollback();
+                                            }
+                                           
+                                        }
+                                         
+                                    }
+
+                                    image.Save(fullPath);
+                                }
+                            });
+                    }
+
+                    catch (Exception exc)
+                    {
+                        Console.WriteLine(exc.Message);
+                    }
+                }
+                else
+                {
+                    throw new HttpResponseException(Request.CreateResponse(
+                            HttpStatusCode.NotAcceptable,
+                            "This request is not properly formatted"));
+                }
+
+                //
+
+
+
+                //
+
+                long lastSavedImageId = -1;
+                string fullName = string.Empty;
+
+                using (var dbc = new ApiDbContext())
+                {
+                    //dbContext.Database.Initialize(true);
+
+                    //foreach (var i in dbContext.ChangeTracker.Entries())
+                    //    i.Reload();
+
+                    //var refreshableObjects = dbContext.ChangeTracker.Entries().Select(c => c.Entity).ToList();
+
+                    var lastSavedImage = dbc.Images.Where(p => p.UserId == currentUserId).Where(p => p.SessionId == currentUserId).ToList().Last();
+
+                    if (lastSavedImage != null)
+                    {
+                        lastSavedImageId = lastSavedImage.ImageId;
+                        fullName = lastSavedImage.ImagePath;
+                        Console.WriteLine(lastSavedImageId);
+                    }
+                }
+
+                if (fullName == string.Empty)
+                {
+                    return BadRequest();
                 }
 
                 //Localization
@@ -129,7 +252,8 @@ namespace DetectionAPI.Controllers
                     //
                     try
                     {
-                        Bitmap image1 = new Bitmap("E:\\rus_car_front.jpg");
+                       
+                        Bitmap image1 = new Bitmap(fullName);
 
                         var detResult = null as PlateDetector.Detection.DetectionResult;
 
@@ -151,12 +275,18 @@ namespace DetectionAPI.Controllers
 
                 if (AlgorythmType == AvailableAlgs.Haar)
                 {
+                    Bitmap image1 = new Bitmap(fullName);
+
+                    var detResult = null as PlateDetector.Detection.DetectionResult;
+
                     return Ok();
                 }
 
                 return BadRequest();
             }
         }
+
+
 
         #region Properties
 
@@ -192,4 +322,5 @@ namespace DetectionAPI.Controllers
         [JsonProperty(PropertyName = "limits")]
         public AvailableLimits AvailableLimits { get; set; }
     }
+
 }
