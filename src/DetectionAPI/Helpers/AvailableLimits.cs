@@ -31,5 +31,11 @@ namespace DetectionAPI.Helpers
         [DataMember]
         [JsonProperty(PropertyName = "platesLimit")]
         public long PlatesLimit { get; set; }
+
+        [DataMember]
+        [JsonProperty(PropertyName = "currentPlan")]
+        public long CurrentPlan { get; set; }
+
+        //public override string ToString() => $@"{IsLimitReached} {CurrentImagesCount} {CurrentPlatesCount} {ImagesLimit} {PlatesLimit} {CurrentPlan}";
     }
 }

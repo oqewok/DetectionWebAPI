@@ -14,7 +14,8 @@ namespace DetectionAPI.Helpers
         /// Checks last session by userId and update it if expiried already, then creates new session
         /// </summary>
         /// <param name="userId"></param>
-        public static void CheckExpirySessionByUserId(long userId)
+        /// <returns>Current session id</returns>
+        public static long CheckExpirySessionByUserId(long userId)
         {
             using (var dbContext = new ApiDbContext())
             {
@@ -41,6 +42,11 @@ namespace DetectionAPI.Helpers
                     userByUserId.SessionId = createdSession.Id;
                     dbContext.SaveChanges();
                 }
+
+                sessionByUserId = dbContext.Set<Session>().Where(p => p.UserId == userId).ToList().LastOrDefault();
+
+                return sessionByUserId.Id;
+
             }
         }
 
@@ -93,10 +99,11 @@ namespace DetectionAPI.Helpers
 
                 availableLimits.CurrentImagesCount = sessionByUserId.ImageCount;
                 availableLimits.CurrentPlatesCount = sessionByUserId.PlatesCount;
-                availableLimits.IsLimitReached = true;
+                availableLimits.CurrentPlan = sessionByUserId.SessionType;
 
                 if (sessionByUserId.IsLimitReached == true)
                 {
+                    availableLimits.IsLimitReached = true;
                     return availableLimits;
                 }
 
@@ -105,6 +112,7 @@ namespace DetectionAPI.Helpers
                     sessionByUserId.IsLimitReached = true;
                     dbContext.SaveChanges();
 
+                    availableLimits.IsLimitReached = true;
                     return availableLimits;
                 }
 

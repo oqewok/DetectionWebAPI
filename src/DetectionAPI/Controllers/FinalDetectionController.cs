@@ -30,6 +30,9 @@ using OpenCvSharp;
 using System.Runtime.Serialization;
 using System.Threading;
 using PlateDetector.Detection;
+using DetectionAPI.Helpers;
+using DetectionAPI.Database;
+using DetectionAPI.Database.Entities;
 
 namespace DetectionAPI.Controllers
 {
@@ -48,7 +51,81 @@ namespace DetectionAPI.Controllers
                 if (algorythm == "neuro")
                 {
                     AlgorythmType = AvailableAlgs.Neuro;
+                }
 
+                else if (algorythm == "haar")
+                {
+                    AlgorythmType = AvailableAlgs.Haar;
+                }
+
+                else
+                {
+                    AlgorythmType = AvailableAlgs.Unknown;
+                }
+            }
+
+            if (AlgorythmType == AvailableAlgs.Unknown)
+            {
+                var algNotSelectedMessage = new AlgNotSelectedMessage
+                {
+                    MessageText = "Please, specify detection algorythm"
+                };
+
+                return BadRequest(algNotSelectedMessage.MessageText);
+            }
+
+            long currentUserId = -1;
+
+            //Check limits
+            using(var dbContext = new ApiDbContext())
+            {
+                var certainUser = dbContext.Set<User>().Where(p => p.AccessToken == authorizedUserToken).ToList().FirstOrDefault();
+
+                if (certainUser != null)
+                {
+                    currentUserId = certainUser.Id;
+                }
+            }
+
+            if (currentUserId == -1)
+            {
+                return BadRequest();
+            }
+
+            var availableLimits = CheckHelper.CheckLimitByUserId(currentUserId);
+
+            //return if limit is reached already
+            if (availableLimits.IsLimitReached == true)
+            {
+                var limitReachedMessage = new LimitReachedMessage
+                {
+                    AvailableLimits = availableLimits,
+                    MessageText = "Your current limit is reached for a period, check it and try again or change your plan"
+                };
+
+                return BadRequest(limitReachedMessage.MessageText);
+            }
+
+            else
+            {
+                //Set current SessionId for updating session data (images count and plates count)
+                var currentSessionId = CheckHelper.CheckExpirySessionByUserId(currentUserId);
+
+                //TODO : You are here
+                //check if multipart/form-data
+                if (!Request.Content.IsMimeMultipartContent())
+                {
+                    var msg = new AlgNotSelectedMessage
+                    {
+                        MessageText = "Your content should be POST and multipart/form-data",
+                    };
+
+                    return BadRequest(msg.MessageText);
+                }
+
+                //Localization
+                if (AlgorythmType == AvailableAlgs.Neuro)
+                {
                     //
                     try
                     {
@@ -63,7 +140,7 @@ namespace DetectionAPI.Controllers
                         return Ok(detResult);
                     }
 
-                    catch(Exception exc)
+                    catch (Exception exc)
                     {
                         Console.WriteLine(exc.Message);
                         Console.WriteLine(exc.StackTrace);
@@ -72,33 +149,13 @@ namespace DetectionAPI.Controllers
                     return BadRequest();
                 }
 
-                else if (algorythm == "haar")
+                if (AlgorythmType == AvailableAlgs.Haar)
                 {
-                    AlgorythmType = AvailableAlgs.Haar;
+                    return Ok();
                 }
 
-                else
-                {
-                    AlgorythmType = AvailableAlgs.Unknown;
-                }
+                return BadRequest();
             }
-
-            if (AlgorythmType == AvailableAlgs.Neuro)
-            {
-                return Ok();
-            }
-
-            if (AlgorythmType == AvailableAlgs.Haar)
-            {
-                return Ok();
-            }
-
-            var algNotSelectedMessage = new AlgNotSelectedMessage
-            {
-                MessageText = "Please, specify detection algorythm"
-            };
-
-            return BadRequest(algNotSelectedMessage.MessageText);
         }
 
         #region Properties
@@ -122,5 +179,17 @@ namespace DetectionAPI.Controllers
         [DataMember]
         [JsonProperty(PropertyName = "message")]
         public string MessageText { get; set; }
+    }
+
+    [DataContract]
+    public class LimitReachedMessage
+    {
+        [DataMember]
+        [JsonProperty(PropertyName = "message")]
+        public string MessageText { get; set; }
+
+        [DataMember]
+        [JsonProperty(PropertyName = "limits")]
+        public AvailableLimits AvailableLimits { get; set; }
     }
 }
