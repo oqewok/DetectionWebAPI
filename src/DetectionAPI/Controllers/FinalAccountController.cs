@@ -30,6 +30,7 @@ using OpenCvSharp;
 using DetectionAPI.Database;
 using DetectionAPI.Database.Entities;
 using System.Threading;
+using System.Runtime.Serialization;
 
 namespace DetectionAPI.Controllers
 {
@@ -212,10 +213,27 @@ namespace DetectionAPI.Controllers
             return NotFound();
         }
 
-
+        [HttpGet]
+        [Route("api/f/account/limits")]
+        [RealBearerAuthenticationFilter]
         public IHttpActionResult AccountLimits()
         {
-            return NotFound();
+            var authorizedUserToken = Thread.CurrentPrincipal.Identity.Name;
+            long id = 0;
+
+            using (var dbContext = new ApiDbContext())
+            {
+                var user = dbContext.Set<User>().Where(p => p.AccessToken == authorizedUserToken).ToList().LastOrDefault();
+
+                if (user != null)
+                {
+                    id = user.Id;
+                }
+            }
+
+            var currentLimitInfo = CheckLimitByUserId(id);
+
+            return Ok(currentLimitInfo);
         }
 
         public class PostedUsernamePassword
@@ -234,8 +252,129 @@ namespace DetectionAPI.Controllers
             }
         }
 
+        [DataContract]
+        public class AvailableLimits
+        {
+            [DataMember]
+            [JsonProperty(PropertyName = "limitReached")]
+            public bool IsLimitReached { get; set; }
+
+            [DataMember]
+            [JsonProperty(PropertyName = "imagesCount")]
+            public long CurrentImagesCount { get; set; }
+
+            [DataMember]
+            [JsonProperty(PropertyName = "platesCount")]
+            public long CurrentPlatesCount { get; set; }
 
 
+            [DataMember]
+            [JsonProperty(PropertyName = "imagesLimit")]
+            public long ImagesLimit { get; set; }
 
+            [DataMember]
+            [JsonProperty(PropertyName = "platesLimit")]
+            public long PlatesLimit { get; set; }
+
+
+        }
+
+        /// <summary>
+        /// Checks last session by userId and update it if expiried already, then creates new session
+        /// </summary>
+        /// <param name="userId"></param>
+        public void CheckExpirySessionByUserId(long userId)
+        {
+            using(var dbContext = new ApiDbContext())
+            {
+                var userByUserId = dbContext.Set<User>().Where(p => p.Id == userId).ToList().LastOrDefault();
+                var sessionByUserId = dbContext.Set<Session>().Where(p => p.UserId == userId).ToList().LastOrDefault();
+
+                if(sessionByUserId.ExpiryDate < DateTime.Now)
+                {
+                    var newSession = new Session
+                    {
+                        CreationTime = DateTime.Now,
+                        ExpiryDate = DateTime.Now.AddMonths(1),
+                        ImageCount = 0,
+                        IsLimitReached = false,
+                        PlatesCount = 0,
+                        SessionType = userByUserId.UserType,
+                        UserId = userByUserId.Id
+                    };
+
+                    dbContext.Sessions.Add(newSession);
+                    dbContext.SaveChanges();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Checks last session by userId on detection limits and sets IsLimitReached on current session
+        /// in case of limit is reached already
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <returns>true : if at least one of limits is reached</returns>
+        //public bool CheckLimitByUserId(long userId)
+        //{
+        //    using (var dbContext = new ApiDbContext())
+        //    {
+        //        var sessionByUserId = dbContext.Set<Session>().Where(p => p.UserId == userId).ToList().LastOrDefault();
+
+        //        if (sessionByUserId.IsLimitReached == true)
+        //        {
+        //            return true;
+        //        }
+
+        //        if (sessionByUserId.PlatesCount >= LimitValues.PlatesCountLimit || sessionByUserId.ImageCount >= LimitValues.ImageCountLimit)
+        //        {
+        //            sessionByUserId.IsLimitReached = true;
+        //            dbContext.SaveChanges();
+        //            return true;
+        //        }
+
+        //        return false;
+        //    }
+        //}
+        
+
+        /// <summary>
+        /// Check session on limits and returns
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <returns></returns>
+        public AvailableLimits CheckLimitByUserId(long userId)
+        {
+            var availableLimits = new AvailableLimits
+            {
+                ImagesLimit = LimitValues.ImageCountLimit,
+                PlatesLimit = LimitValues.PlatesCountLimit,
+                IsLimitReached = false
+            };
+
+            using (var dbContext = new ApiDbContext())
+            {
+                var sessionByUserId = dbContext.Set<Session>().Where(p => p.UserId == userId).ToList().LastOrDefault();
+
+                availableLimits.CurrentImagesCount = sessionByUserId.ImageCount;
+                availableLimits.CurrentPlatesCount = sessionByUserId.PlatesCount;
+                availableLimits.IsLimitReached = true;
+
+                if (sessionByUserId.IsLimitReached == true)
+                {
+                    return availableLimits;
+                }
+
+                if (sessionByUserId.PlatesCount >= LimitValues.PlatesCountLimit || sessionByUserId.ImageCount >= LimitValues.ImageCountLimit)
+                {
+                    sessionByUserId.IsLimitReached = true;
+                    dbContext.SaveChanges();
+
+                    return availableLimits;
+                }
+
+                return availableLimits;
+            }
+        }
     }
 }
