@@ -80,7 +80,25 @@ namespace DetectionAPI.Controllers
                         UserType = 0,
                     };
 
+                    var newSession = new Session
+                    {
+                        CreationTime = DateTime.Now,
+                        ExpiryDate = DateTime.Now.AddMonths(1),
+                        ImageCount = 0,
+                        IsLimitReached = false,
+                        SessionType = newUser.UserType,
+                        PlatesCount = 0,
+                        UserId = newUser.Id,
+                        User = newUser
+                    };
+
+                    dbContext.Sessions.Add(newSession);
                     dbContext.Users.Add(newUser);
+                    dbContext.SaveChanges();
+
+                    var updateUser = dbContext.Set<User>().Where(p => p.Username == postedValues.Username).ToList().LastOrDefault();
+                    updateUser.SessionId = newSession.Id;
+
                     dbContext.SaveChanges();
                 }
             }
