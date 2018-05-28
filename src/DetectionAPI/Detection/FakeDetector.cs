@@ -5,17 +5,21 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Ninject;
+using System.IO;
 
 namespace DetectionAPI.Detection
 {
-    public class FakeDetector : IDetector
+    public class FakeDetector : IFakeDetector
     {
         private Coord[] Coordinates { get; set; }
         public Guid Name { get; set; }
 
-        public FakeDetector()
+        private FakeDetectorInsider FDI;
+
+        public FakeDetector(FakeDetectorInsider fdi)
         {
-            //Name = Guid.NewGuid().ToString();
+            FDI = fdi;
+            Name = Guid.NewGuid();
         }
 
         public Coord[] Detect()
@@ -36,6 +40,43 @@ namespace DetectionAPI.Detection
             };
 
             return dr;
+        }
+
+
+        public string GetName()
+        {
+            return Name.ToString();
+        }
+
+        public class FakeDetectorInsider
+        {
+            public Guid InsiderName { get; set; }
+
+            private Insiderinsider II;
+
+            public FakeDetectorInsider(Insiderinsider ii)
+            {
+                II = ii;
+                InsiderName = Guid.NewGuid();
+            }
+        }
+
+        public class Insiderinsider
+        {
+            public Guid InsiderInsiderName { get; set; }
+            public List<StreamReader> SomeStreamReader { get; set; }
+
+            public Insiderinsider()
+            {
+                InsiderInsiderName = Guid.NewGuid();
+                SomeStreamReader = new List<StreamReader>();
+                for(int i=0; i<500; i++)
+                {
+                    SomeStreamReader.Add(new StreamReader("D:\\images\\car10326495.jpg"));
+                }
+                
+            }
+
         }
 
     }

@@ -32,17 +32,35 @@ namespace DetectionAPI.Controllers
 {
     public class ABCController : ApiController
     {
-        public Detector det { get; set; }
+        public Detector det;
+
+        public FakeDetector f_detector;
+
+        public IFakeDetector idetector;
+
+        public IKernel Kernel;
 
         //public ABCController()
         //{
 
         //}
 
-        //public ABCController(Detector detector)
+        //public ABCController(FakeDetector fd)
+        //{
+        //    f_detector = fd;
+        //}
+
+        //public ABCController(Detector detector, FakeDetector fd)
         //{
         //    det = detector;
+        //    f_detector = fd;
+
         //}
+
+        public ABCController(IKernel kernel)
+        {
+            Kernel = kernel;
+        }
 
         [HttpGet]
         [Route("api/abc")]
@@ -57,18 +75,14 @@ namespace DetectionAPI.Controllers
             try
             {
                 //detector
-                Detector det = new Detector(new AlgManager(new FasterRcnnProvider()));
+                //Detector det = new Detector(new AlgManager(new FasterRcnnProvider()));
+                det = Kernel.TryGet<Detector>();
+
                 if (det == null) return BadRequest();
 
                 var det_result = det.Detect(image1);
 
-                var json = JsonConvert.SerializeObject(det_result, Formatting.None);
-
-                var drs = det_result.ToString();
-
-                var json_drs = JsonConvert.SerializeObject(drs, Formatting.Indented);
-
-                return Ok(json);
+                return Ok(det_result);
             }
 
             catch (Exception exc)
@@ -80,5 +94,44 @@ namespace DetectionAPI.Controllers
 
             
         }
+
+
+
+        [HttpGet]
+        [Route("api/abc/fake")]
+        public IHttpActionResult TryFakeDetection()
+        {
+            Console.WriteLine("Hi, fake");
+
+            for (int i = 0; i < 10; i++)
+            {
+                //var dr = Configuration.DependencyResolver;
+                idetector = Kernel.TryGet<IFakeDetector>();
+                Console.WriteLine(idetector.GetName());
+            }
+
+            if (f_detector == null) { return BadRequest(); }
+
+           
+            
+
+            var res = f_detector.Detect();
+
+            ///
+            //IKernel kernel = new StandardKernel();
+            //kernel.Bind<IDetector>().To<FakeDetector>().InSingletonScope();
+
+            //IDetector detector;
+
+            //for (int i = 0; i < 10; i++)
+            //{
+            //    detector = kernel.TryGet<IDetector>();
+            //    Console.WriteLine(detector.TakeName());
+            //}
+
+
+            return Ok(res);
+        }
+
     }
 }
