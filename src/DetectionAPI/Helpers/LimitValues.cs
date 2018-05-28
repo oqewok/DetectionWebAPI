@@ -8,7 +8,7 @@ namespace DetectionAPI.Helpers
 {
     public static class LimitValues
     {
-        public static long ImageCountLimit = 150;
-        public static long PlatesCountLimit = 200;
+        public static long ImageCountLimit = 100;
+        public static long PlatesCountLimit = 150;
     }
 }

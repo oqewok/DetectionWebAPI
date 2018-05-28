@@ -41,13 +41,13 @@ namespace DetectionAPI.Controllers
 {
     public class FinalDetectionController : ApiController
     {
-        ApiDbContext dbc;
-
         [HttpPost]
         [RealBearerAuthenticationFilter]
         [Route("api/f/detection")]
         public IHttpActionResult Detection([FromUri] string algorythm)
         {
+            object syncRoot = new object();
+
             var authorizedUserToken = Thread.CurrentPrincipal.Identity.Name;
 
             //check if algorythm passed in URI
@@ -80,15 +80,22 @@ namespace DetectionAPI.Controllers
             }
 
             long currentUserId = -1;
+            long currentImageId = -1;
 
             //Check limits
             using(var dbContext = new ApiDbContext())
             {
                 var certainUser = dbContext.Set<User>().Where(p => p.AccessToken == authorizedUserToken).ToList().FirstOrDefault();
+                var certainImage = dbContext.Set<ImageInfo>().ToList().Last();
 
                 if (certainUser != null)
                 {
                     currentUserId = certainUser.Id;
+                }
+
+                if (certainImage != null)
+                {
+                    currentImageId = certainImage.ImageId + 1;
                 }
             }
 
@@ -98,6 +105,9 @@ namespace DetectionAPI.Controllers
             }
 
             var availableLimits = CheckHelper.CheckLimitByUserId(currentUserId);
+
+            long lastSavedImageId = -1;
+            string fullName = string.Empty;
 
             //return if limit is reached already
             if (availableLimits.IsLimitReached == true)
@@ -136,8 +146,10 @@ namespace DetectionAPI.Controllers
                     //Request.Content.LoadIntoBufferAsync().Wait();
                     try
                     {
-                        Request.Content.LoadIntoBufferAsync().Wait();
-                        Request.Content.ReadAsMultipartAsync<MultipartMemoryStreamProvider>(
+                        Task myTask = new Task(() =>
+                        {
+                            Request.Content.LoadIntoBufferAsync().Wait();
+                            Request.Content.ReadAsMultipartAsync(
                             new MultipartMemoryStreamProvider()).ContinueWith((task) =>
                             {
                                 MultipartMemoryStreamProvider provider = task.Result;
@@ -160,7 +172,7 @@ namespace DetectionAPI.Controllers
                                     var origName = Path.GetFileNameWithoutExtension(origNameAndExtension);
 
                                     //string fileName = headerValues + "_" + origName + "_" + Guid.NewGuid().ToString() + ".jpg";
-                                    string fileName = currentSessionId.ToString() + Guid.NewGuid().ToString() + ".jpg";
+                                    string fileName = currentSessionId.ToString() + "_" + currentImageId + ".jpg";
 
                                     //string tmpName = Guid.NewGuid().ToString();
                                     //String fileName = tmpName + ".jpg";
@@ -187,23 +199,36 @@ namespace DetectionAPI.Controllers
                                                 transaction.Commit();
                                             }
 
-                                            catch(Exception exc)
+                                            catch (Exception exc)
                                             {
                                                 transaction.Rollback();
                                             }
-                                           
+
                                         }
-                                         
+
                                     }
 
                                     image.Save(fullPath);
                                 }
                             });
+                        });
+
+                        myTask.Start();
+
+                        if (myTask.IsCompleted)
+                        {
+                            Console.WriteLine("Uploading image is complited");
+                        }
+
                     }
 
                     catch (Exception exc)
                     {
                         Console.WriteLine(exc.Message);
+                    }
+
+                    finally
+                    {
                     }
                 }
                 else
@@ -213,33 +238,34 @@ namespace DetectionAPI.Controllers
                             "This request is not properly formatted"));
                 }
 
-                //
+                //Jesus! I can't save image in another thread so i have to wait
+                //used Task work = Task.Factory.StartNew to save image
+                //and work.Wait() after it in this thread, but it doesn't work
+                //I couldn't solve it with monitors
+                Thread.Sleep(200);
 
-
-
-                //
-
-                long lastSavedImageId = -1;
-                string fullName = string.Empty;
-
-                using (var dbc = new ApiDbContext())
+                try
                 {
-                    //dbContext.Database.Initialize(true);
 
-                    //foreach (var i in dbContext.ChangeTracker.Entries())
-                    //    i.Reload();
-
-                    //var refreshableObjects = dbContext.ChangeTracker.Entries().Select(c => c.Entity).ToList();
-
-                    var lastSavedImage = dbc.Images.Where(p => p.UserId == currentUserId).Where(p => p.SessionId == currentUserId).ToList().Last();
-
-                    if (lastSavedImage != null)
+                    using (var dbc = new ApiDbContext())
                     {
-                        lastSavedImageId = lastSavedImage.ImageId;
-                        fullName = lastSavedImage.ImagePath;
-                        Console.WriteLine(lastSavedImageId);
+
+                        var lastSavedImage = dbc.Images.Where(p => p.UserId == currentUserId).Where(p => p.SessionId == currentUserId).ToList().Last();
+
+                        //var lastSavedImage = dbc.Images.Where(p => p.ImageId == currentImageId).ToList().Last();
+
+                        if (lastSavedImage != null)
+                        {
+                            lastSavedImageId = lastSavedImage.ImageId;
+                            fullName = lastSavedImage.ImagePath;
+                        }
                     }
                 }
+                finally
+                {
+                }
+                
+                //
 
                 if (fullName == string.Empty)
                 {
@@ -261,6 +287,51 @@ namespace DetectionAPI.Controllers
 
                         detResult = networkDetector.Detect(image1);
 
+                        int detectetPlatesCount = detResult.GetDetectionsList().Count;
+
+                        using(var dbContext = new ApiDbContext())
+                        {
+                            //Update counts
+                            var currentSession = dbContext.Sessions.Where(p => p.Id == currentSessionId).ToList().LastOrDefault();
+                            currentSession.ImageCount++;
+                            currentSession.PlatesCount += detectetPlatesCount;
+
+                            //Update MarkupPath
+                            if (detectetPlatesCount != 0)
+                            {
+                                var image = dbContext.Images.Where(p => p.UserId == currentUserId).Where(p => p.SessionId == currentUserId).ToList().LastOrDefault();
+                                image.PlatesCount = detectetPlatesCount;
+
+                                //Create user's markup folder
+                                string filePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "DetectionAPI", "Markup", currentUserId.ToString());
+                                Directory.CreateDirectory(filePath);
+
+                                //Make filename
+                                string fileName = currentSessionId.ToString() + "_" + currentImageId + ".json";
+
+                                //Make full filepath
+                                string fullPath = Path.Combine(filePath, fileName);
+
+                                image.MarkupPath = fullPath;
+
+                                //Write json
+                                TextWriter writer = new StreamWriter(fullPath, false);
+
+                                string jsonData = JsonConvert.SerializeObject(detResult, Formatting.Indented);
+                                try
+                                {
+                                    writer.Write(jsonData);
+                                }
+
+                                finally
+                                {
+                                    writer.Close();
+                                }
+                            }
+                            dbContext.SaveChanges();
+
+                        }
+
                         return Ok(detResult);
                     }
 
@@ -275,11 +346,73 @@ namespace DetectionAPI.Controllers
 
                 if (AlgorythmType == AvailableAlgs.Haar)
                 {
-                    Bitmap image1 = new Bitmap(fullName);
+                    //
+                    try
+                    {
 
-                    var detResult = null as PlateDetector.Detection.DetectionResult;
+                        Bitmap image1 = new Bitmap(fullName);
 
-                    return Ok();
+                        var detResult = null as PlateDetector.Detection.DetectionResult;
+
+                        var networkDetector = new Detector(new AlgManager(new HaarCascadeProvider()));
+
+                        detResult = networkDetector.Detect(image1);
+
+                        int detectetPlatesCount = detResult.GetDetectionsList().Count;
+
+                        using (var dbContext = new ApiDbContext())
+                        {
+                            //Update counts
+                            var currentSession = dbContext.Sessions.Where(p => p.Id == currentSessionId).ToList().LastOrDefault();
+                            currentSession.ImageCount++;
+                            currentSession.PlatesCount += detectetPlatesCount;
+
+                            //Update MarkupPath
+                            if (detectetPlatesCount != 0)
+                            {
+                                var image = dbContext.Images.Where(p => p.UserId == currentUserId).Where(p => p.SessionId == currentUserId).ToList().LastOrDefault();
+                                image.PlatesCount = detectetPlatesCount;
+
+                                //Create user's markup folder
+                                string filePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "DetectionAPI", "Markup", currentUserId.ToString());
+                                Directory.CreateDirectory(filePath);
+
+                                //Make filename
+                                string fileName = currentSessionId.ToString() + "_" + currentImageId + ".json";
+
+                                //Make full filepath
+                                string fullPath = Path.Combine(filePath, fileName);
+
+                                image.MarkupPath = fullPath;
+
+                                //Write json
+                                TextWriter writer = new StreamWriter(fullPath, false);
+
+                                string jsonData = JsonConvert.SerializeObject(detResult, Formatting.Indented);
+                                try
+                                {
+                                    writer.Write(jsonData);
+                                }
+
+                                finally
+                                {
+                                    writer.Close();
+                                }
+                            }
+                            dbContext.SaveChanges();
+
+                        }
+
+                        return Ok(detResult);
+                    }
+
+                    catch (Exception exc)
+                    {
+                        Console.WriteLine(exc.Message);
+                        Console.WriteLine(exc.StackTrace);
+                    }
+
+                    return BadRequest();
                 }
 
                 return BadRequest();
