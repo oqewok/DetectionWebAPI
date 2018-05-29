@@ -1,7 +1,6 @@
 ﻿using System.Web.Http;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
-using DetectionAPI.Filters;
 
 namespace DetectionAPI.Controllers
 {
@@ -19,7 +18,6 @@ namespace DetectionAPI.Controllers
 
             return Ok(msg);
         }
-
     }
 
     [DataContract]
@@ -28,6 +26,5 @@ namespace DetectionAPI.Controllers
         [DataMember]
         [JsonProperty(PropertyName = "status")]
         public string Status { get; set; }
-
     }
 }

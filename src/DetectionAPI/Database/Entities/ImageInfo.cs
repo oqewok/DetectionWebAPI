@@ -1,8 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Data.Entity.Infrastructure.Annotations;
 using System.Data.Entity.ModelConfiguration;
-using System.Runtime.Serialization;
 
 namespace DetectionAPI.Database.Entities
 {
@@ -60,7 +58,7 @@ namespace DetectionAPI.Database.Entities
 
         public long PlatesCount { get; set; }
 
-        ////FK
+        //FK
         public long UserId { get; set; }
 
         //FK
@@ -69,9 +67,6 @@ namespace DetectionAPI.Database.Entities
 
         public DateTime UploadDate { get; set; }
 
-        ////Navigational property
-        //public virtual User User { get; set; }
-
         //Navigational property
         [ForeignKey("SessionId")]
         public virtual Session Session { get; set; }
@@ -79,6 +74,5 @@ namespace DetectionAPI.Database.Entities
         #endregion
 
         public override string ToString() => $@"ImageId: {ImageId}, ImagePath:{ImagePath}, MarkupPath: {MarkupPath}, PlatesCount: {PlatesCount}, UserId: {UserId}, SessionId: {SessionId}, UploadDate: {UploadDate}";
-        //public override string ToString() => $@"ImageId: {ImageId}, ImagePath:{ImagePath}, MarkupPath: {MarkupPath}, PlatesCount: {PlatesCount}, SessionId: {SessionId}, UploadDate: {UploadDate}";
     }
 }

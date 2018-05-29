@@ -1,10 +1,7 @@
 ﻿using DetectionAPI.Database;
 using DetectionAPI.Database.Entities;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DetectionAPI.Helpers
 {
@@ -49,35 +46,6 @@ namespace DetectionAPI.Helpers
 
             }
         }
-
-        /// <summary>
-        /// Checks last session by userId on detection limits and sets IsLimitReached on current session
-        /// in case of limit is reached already
-        /// </summary>
-        /// <param name="userId"></param>
-        /// <returns>true : if at least one of limits is reached</returns>
-        //public bool CheckLimitByUserId(long userId)
-        //{
-        //    using (var dbContext = new ApiDbContext())
-        //    {
-        //        var sessionByUserId = dbContext.Set<Session>().Where(p => p.UserId == userId).ToList().LastOrDefault();
-
-        //        if (sessionByUserId.IsLimitReached == true)
-        //        {
-        //            return true;
-        //        }
-
-        //        if (sessionByUserId.PlatesCount >= LimitValues.PlatesCountLimit || sessionByUserId.ImageCount >= LimitValues.ImageCountLimit)
-        //        {
-        //            sessionByUserId.IsLimitReached = true;
-        //            dbContext.SaveChanges();
-        //            return true;
-        //        }
-
-        //        return false;
-        //    }
-        //}
-
 
         /// <summary>
         /// Check session on limits and sets flags if limit is reached

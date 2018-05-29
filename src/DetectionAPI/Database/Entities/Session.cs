@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Data.Entity.Infrastructure.Annotations;
 using System.Data.Entity.ModelConfiguration;
-using System.Runtime.Serialization;
 
 namespace DetectionAPI.Database.Entities
 {
@@ -39,14 +37,11 @@ namespace DetectionAPI.Database.Entities
 
                 Property(e => e.IsLimitReached)
                     .IsRequired();
-
             }
-
         }
 
         public static EntityTypeConfiguration<Session> CreateConfiguration() => new SessionConfiguration();
         #endregion
-
 
         #region Properties
 
@@ -66,7 +61,6 @@ namespace DetectionAPI.Database.Entities
         public bool IsLimitReached { get; set; }
 
         //FK
-
         public long UserId { get; set; }
 
         [ForeignKey("UserId")]
@@ -81,7 +75,6 @@ namespace DetectionAPI.Database.Entities
         {
             Images = new List<ImageInfo>();
         }
-
 
         public override string ToString() => $@"Id: {Id}, ImageCount: {ImageCount}, PlatesCount: {PlatesCount}, Created: {CreationTime}, Expiry: {ExpiryDate}, SessionType: {SessionType}, IsLimitReached: {IsLimitReached}, UserId: {UserId}";
     }

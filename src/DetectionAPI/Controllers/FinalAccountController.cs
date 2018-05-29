@@ -1,37 +1,15 @@
-﻿using DetectionAPI.Models;
-using DetectionAPI.Filters;
-using DetectionAPI.Detection;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.ComponentModel.DataAnnotations;
-using System.Drawing;
-using System.IO;
 using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Net.Mime;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web;
-using System.Web.Configuration;
-using System.Web.Hosting;
 using System.Web.Http;
-using Newtonsoft.Json;
-using System.Web.Http.Description;
-using System.Web.Http.ModelBinding;
-using System.Web.Http.Results;
-using DetectionAPI.Detection.DetectionResult;
-using PlateDetector.Detection;
-using System.Diagnostics;
-using Ninject;
-using OpenCvSharp;
+using System.Threading;
+
 using DetectionAPI.Database;
 using DetectionAPI.Database.Entities;
-using System.Threading;
-using System.Runtime.Serialization;
+using DetectionAPI.Filters;
 using DetectionAPI.Helpers;
+using Newtonsoft.Json;
 
 namespace DetectionAPI.Controllers
 {
@@ -108,41 +86,6 @@ namespace DetectionAPI.Controllers
 
             return Ok();
         }
-
-        /// <summary>
-        /// Returns token when FromBody parameter
-        /// have been passed as raw application/json:
-        /// {
-        ///     username : "username@example.com",
-        ///     password : "example_password" 
-        /// }
-        /// </summary>
-        /// <param name="postedValues"></param>
-        /// <returns></returns>
-        //[HttpPost]
-        //[Route("api/f/account/token", Name = "GetAccessTokenRawJsonParameter")]
-        //public IHttpActionResult Token([FromBody] PostedUsernamePassword postedValues)
-        //{
-          
-        //    var tokenDict = new Dictionary<string, string>();
-        //    tokenDict.Add("token", Guid.NewGuid().ToString());
-
-
-        //    //routeValues can be formed like: new { username = postedValues.Username, password = postedValues.Password }
-        //    //and appears as Location Header in response - %route%?username=Value&password=Value
-        //    //content: dict values appears in body of response
-        //    return CreatedAtRoute(routeName: "GetAccessTokenRawJsonParameter", routeValues: new {}, content: tokenDict);
-
-
-        //    //!!!!!! BASE64 STRING IN HEADER !!!!!
-        //    // so not like above with FromBody
-
-        //    //check username/password
-
-        //    //get or create new token
-
-        //    //return token
-        //}
 
         /// <summary>
         /// Returns token when basic auth credentials given

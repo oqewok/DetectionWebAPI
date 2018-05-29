@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Data.Entity.Infrastructure.Annotations;
 using System.Data.Entity.ModelConfiguration;
-using System.Runtime.Serialization;
 
 namespace DetectionAPI.Database.Entities
 {
@@ -60,10 +58,7 @@ namespace DetectionAPI.Database.Entities
         public string AccessToken { get; set; }
 
         //FK
-
         public long? SessionId { get; set; }
-
-        //public List<Session> Sessions { get; set; }
 
         [ForeignKey("SessionId")]
         public virtual ICollection<Session> Sessions { get; set; }

@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Security.Principal;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http.Controllers;
 using System.Web.Http.Filters;
@@ -76,8 +72,6 @@ namespace DetectionAPI.Filters
 
             if (string.IsNullOrEmpty(authHeader))
                 return null;
-
-            //authHeader = Encoding.Default.GetString(Convert.FromBase64String(authHeader));
             
             return new BearerAuthenticationIdentity(authHeader);
         }
@@ -88,7 +82,5 @@ namespace DetectionAPI.Filters
             actionContext.Response = actionContext.Request.CreateResponse(HttpStatusCode.Unauthorized);
             actionContext.Response.Headers.Add("WWW-Authenticate", $@"Bearer \{host}\");
         }
-
-
     }
 }

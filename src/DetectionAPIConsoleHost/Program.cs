@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Owin.Hosting;
 using DetectionAPI;
 
@@ -14,6 +10,7 @@ namespace DetectionAPIConsoleHost
         {
             using (WebApp.Start<Startup>("http://localhost:8002"))
             {
+                Console.WriteLine("API started and ready to process requests...");
                 Console.ReadLine();
             }
         }

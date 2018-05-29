@@ -1,41 +1,20 @@
-﻿using DetectionAPI.Models;
-using DetectionAPI.Filters;
-using DetectionAPI.Detection;
-using System;
-using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.ComponentModel.DataAnnotations;
+﻿using System;
 using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Net.Mime;
-using System.Text;
 using System.Threading.Tasks;
-using System.Web;
-using System.Web.Configuration;
-using System.Web.Hosting;
 using System.Web.Http;
-using Newtonsoft.Json;
-using System.Web.Http.Description;
-using System.Web.Http.ModelBinding;
-using System.Web.Http.Results;
-using DetectionAPI.Detection.DetectionResult;
-using PlateDetector.Detection;
-using System.Diagnostics;
-using Ninject;
-using OpenCvSharp;
 using System.Runtime.Serialization;
 using System.Threading;
-using PlateDetector.Detection;
-using DetectionAPI.Helpers;
+
 using DetectionAPI.Database;
 using DetectionAPI.Database.Entities;
-using System.Data.Entity.Infrastructure;
-using System.Data.Entity;
-using System.Data.Entity.Core.Objects;
+using DetectionAPI.Filters;
+using DetectionAPI.Helpers;
+using PlateDetector.Detection;
+using Newtonsoft.Json;
 
 namespace DetectionAPI.Controllers
 {
@@ -138,12 +117,9 @@ namespace DetectionAPI.Controllers
                     return BadRequest(msg.MessageText);
                 }
 
-                //TODO : You are here
                 //Load and save image, create record with new ImageInfo (in Images table)
                 if (Request.Content.IsMimeMultipartContent())
                 {
-                    //For larger files, this might need to be added:
-                    //Request.Content.LoadIntoBufferAsync().Wait();
                     try
                     {
                         Task myTask = new Task(() =>
@@ -159,23 +135,14 @@ namespace DetectionAPI.Controllers
                                     Stream stream = content.ReadAsStreamAsync().Result;
                                     Image image = Image.FromStream(stream);
                                     var testName = content.Headers.ContentDisposition.Name;
-                                    //String filePath = HostingEnvironment.MapPath("~/Images/");
                                     string filePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "DetectionAPI", "Images", currentUserId.ToString());
                                     Directory.CreateDirectory(filePath);
 
-                                    //Note that the ID is pushed to the request header,
-                                    //not the content header:
-                                    //String[] headerValues = (String[])Request.Headers.GetValues("image_token");
                                     string headerValues = "image";
 
                                     var origNameAndExtension = content.Headers.ContentDisposition.FileName.Trim('\"');
                                     var origName = Path.GetFileNameWithoutExtension(origNameAndExtension);
-
-                                    //string fileName = headerValues + "_" + origName + "_" + Guid.NewGuid().ToString() + ".jpg";
                                     string fileName = currentSessionId.ToString() + "_" + currentImageId + ".jpg";
-
-                                    //string tmpName = Guid.NewGuid().ToString();
-                                    //String fileName = tmpName + ".jpg";
                                     string fullPath = Path.Combine(filePath, fileName);
 
                                     var newImage = new ImageInfo
@@ -187,25 +154,10 @@ namespace DetectionAPI.Controllers
                                         UserId = currentSessionId,
                                     };
 
-
                                     using (var dbContext = new ApiDbContext())
                                     {
-                                        using (var transaction = dbContext.Database.BeginTransaction())
-                                        {
-                                            try
-                                            {
-                                                dbContext.Images.Add(newImage);
-                                                dbContext.SaveChanges();
-                                                transaction.Commit();
-                                            }
-
-                                            catch (Exception exc)
-                                            {
-                                                transaction.Rollback();
-                                            }
-
-                                        }
-
+                                        dbContext.Images.Add(newImage);
+                                        dbContext.SaveChanges();
                                     }
 
                                     image.Save(fullPath);
@@ -219,7 +171,6 @@ namespace DetectionAPI.Controllers
                         {
                             Console.WriteLine("Uploading image is complited");
                         }
-
                     }
 
                     catch (Exception exc)
@@ -238,21 +189,14 @@ namespace DetectionAPI.Controllers
                             "This request is not properly formatted"));
                 }
 
-                //Jesus! I can't save image in another thread so i have to wait
-                //used Task work = Task.Factory.StartNew to save image
-                //and work.Wait() after it in this thread, but it doesn't work
-                //I couldn't solve it with monitors
+                //FeelsBadMan
                 Thread.Sleep(200);
 
                 try
                 {
-
                     using (var dbc = new ApiDbContext())
                     {
-
                         var lastSavedImage = dbc.Images.Where(p => p.UserId == currentUserId).Where(p => p.SessionId == currentUserId).ToList().Last();
-
-                        //var lastSavedImage = dbc.Images.Where(p => p.ImageId == currentImageId).ToList().Last();
 
                         if (lastSavedImage != null)
                         {
@@ -264,8 +208,6 @@ namespace DetectionAPI.Controllers
                 finally
                 {
                 }
-                
-                //
 
                 if (fullName == string.Empty)
                 {
@@ -275,10 +217,8 @@ namespace DetectionAPI.Controllers
                 //Localization
                 if (AlgorythmType == AvailableAlgs.Neuro)
                 {
-                    //
                     try
                     {
-                       
                         Bitmap image1 = new Bitmap(fullName);
 
                         var detResult = null as PlateDetector.Detection.DetectionResult;
@@ -400,7 +340,6 @@ namespace DetectionAPI.Controllers
                                 }
                             }
                             dbContext.SaveChanges();
-
                         }
 
                         return Ok(detResult);
@@ -418,8 +357,6 @@ namespace DetectionAPI.Controllers
                 return BadRequest();
             }
         }
-
-
 
         #region Properties
 
