@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Web.Http.Cors;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -18,6 +19,7 @@ using Newtonsoft.Json;
 
 namespace DetectionAPI.Controllers
 {
+    [EnableCors(origins: "*", headers: "*", methods: "*")]
     public class FinalDetectionController : ApiController
     {
         [HttpPost]

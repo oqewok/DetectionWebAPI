@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Web.Http;
+using System.Web.Http.Cors;
 using System.Threading;
 
 using DetectionAPI.Database;
@@ -13,6 +14,7 @@ using Newtonsoft.Json;
 
 namespace DetectionAPI.Controllers
 {
+    [EnableCors(origins: "*", headers: "*", methods: "*")]
     public class FinalAccountController : ApiController
     {
         /// <summary>

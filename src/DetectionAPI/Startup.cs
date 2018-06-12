@@ -13,6 +13,7 @@ namespace DetectionAPI
         /// <param name="app"></param>
         public void Configuration(IAppBuilder app)
         {
+            //GlobalConfiguration.Configure(WebApiConfig.Register);
             var httpConfiguration = new HttpConfiguration();
             WebApiConfig.Register(httpConfiguration);
             app.UseWebApi(httpConfiguration);

@@ -20,6 +20,7 @@ namespace DetectionAPIWebHost
             config.IncludeErrorDetailPolicy = IncludeErrorDetailPolicy.LocalOnly;
 
             //Конифгурация стандартного маршрута, остальные маршруты динамически строятся на основании атрибутов к классам контроллеров
+            config.EnableCors();
             config.MapHttpAttributeRoutes();
 
             config.Routes.MapHttpRoute(
