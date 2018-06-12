@@ -5,9 +5,15 @@ using System.Data.Entity.ModelConfiguration;
 
 namespace DetectionAPI.Database.Entities
 {
+    /// <summary>
+    /// /// Класс, отображающий запись табицы базы данных Sessions в объект Session и наоборот
+    /// </summary>
     public class Session
     {
         #region Configuration
+        /// <summary>
+        /// Конфигурация таблицы базы данных
+        /// </summary>
         public sealed class SessionConfiguration : EntityTypeConfiguration<Session>
         {
             public SessionConfiguration()

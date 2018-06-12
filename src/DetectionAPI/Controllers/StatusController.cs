@@ -5,9 +5,18 @@ using Newtonsoft.Json;
 
 namespace DetectionAPI.Controllers
 {
+    /// <summary>
+    /// Класс, принимающий запросы удаленных пользователей и отвечающий за
+    /// передачу уведомлений о доступности сервиса
+    /// </summary>
     [EnableCors(origins: "*", headers: "*", methods: "*")]
     public class StatusController : ApiController
     {
+        /// <summary>
+        /// Обрабатывает запрос удаленного пользователя о досупности сервиса и гоовности
+        /// обрабатывать иные запросы
+        /// </summary>
+        /// <returns><see cref="StatusMessage"/></returns>
         [HttpGet]
         [AllowAnonymous]
         [Route("api/status")]
@@ -22,6 +31,9 @@ namespace DetectionAPI.Controllers
         }
     }
 
+    /// <summary>
+    /// Структура сообщения о доступности сервиса
+    /// </summary>
     [DataContract]
     public class StatusMessage
     {

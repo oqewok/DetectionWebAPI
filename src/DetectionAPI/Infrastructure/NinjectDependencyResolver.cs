@@ -10,6 +10,9 @@ using PlateDetector.Detection;
 
 namespace DetectionAPI.Infrastructure
 {
+    /// <summary>
+    /// Класс, описывающий и регистрирующий зависимости объектов, управляющий временем их жизни
+    /// </summary>
     public class NinjectDependencyResolver : NinjectScope, IDependencyResolver
     {
         private IKernel _kernel;
@@ -26,6 +29,9 @@ namespace DetectionAPI.Infrastructure
             return new NinjectScope(_kernel.BeginBlock());
         }
 
+        /// <summary>
+        /// Регистрация зависимостей
+        /// </summary>
         private void AddBindings()
         {
             _kernel.Bind<IDetectionAlgProvider>().To<FasterRcnnProvider>().InSingletonScope();
@@ -39,6 +45,9 @@ namespace DetectionAPI.Infrastructure
 
     }
 
+    /// <summary>
+    /// Управляет передачей объектов по месту использования
+    /// </summary>
     public class NinjectScope : IDependencyScope
     {
         protected IResolutionRoot resolutionRoot;

@@ -9,6 +9,9 @@ using System.Web.Http.Filters;
 
 namespace DetectionAPI.Filters
 {
+    /// <summary>
+    /// Базовый класс фильтра с типом авторизации Bearer
+    /// </summary>
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
     public class BearerAuthenticationFilter : AuthorizationFilterAttribute
     {
@@ -19,6 +22,9 @@ namespace DetectionAPI.Filters
 
         }
 
+        /// <summary>
+        /// Конструктор с указанием активности фильтра
+        /// </summary>
         public BearerAuthenticationFilter(bool active)
         {
             Active = active;
@@ -63,6 +69,11 @@ namespace DetectionAPI.Filters
             return true;
         }
 
+        /// <summary>
+        /// Извлечение данных авторизации из запроса
+        /// </summary>
+        /// <param name="actionContext"></param>
+        /// <returns><see cref="BearerAuthenticationIdentity"/>Данные авторизации</returns>
         protected virtual BearerAuthenticationIdentity ParseAuthorizationHeader(HttpActionContext actionContext)
         {
             string authHeader = null;
@@ -76,6 +87,9 @@ namespace DetectionAPI.Filters
             return new BearerAuthenticationIdentity(authHeader);
         }
 
+        /// <summary>
+        /// Срабатывает, если установление личности не пройдено
+        /// </summary>
         void Challenge(HttpActionContext actionContext)
         {
             var host = actionContext.Request.RequestUri.DnsSafeHost;

@@ -2,6 +2,9 @@
 
 namespace DetectionAPI.Filters
 {
+    /// <summary>
+    /// /// Описывает данные авторизации для типа авториции Basic
+    /// </summary>
     public class BasicAuthenticationIdentity : GenericIdentity
     {
         public BasicAuthenticationIdentity(string name, string password)
@@ -11,7 +14,7 @@ namespace DetectionAPI.Filters
         }
 
         /// <summary>
-        /// Basic Auth Password for custom authentication
+        /// Пароль, переданный с запросом
         /// </summary>
         public string Password { get; set; }
     }

@@ -10,6 +10,9 @@ using System.Web.Http.Filters;
 
 namespace DetectionAPI.Filters
 {
+    /// <summary>
+    /// Базовый класс фильтра с типом авторизации Basic
+    /// </summary>
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
     public class BasicAuthenticationFilter : AuthorizationFilterAttribute
     {
@@ -20,11 +23,17 @@ namespace DetectionAPI.Filters
 
         }
 
+        /// <summary>
+        /// Конструктор с указанием активности фильтра
+        /// </summary>
         public BasicAuthenticationFilter(bool active)
         {
             Active = active;
         }
 
+        /// <summary>
+        /// Прохождение авторизации
+        /// </summary>
         public override void OnAuthorization(HttpActionContext actionContext)
         {
             if (Active)
@@ -64,6 +73,11 @@ namespace DetectionAPI.Filters
             return true;
         }
 
+        /// <summary>
+        /// Извлечение данных авторизации из запроса
+        /// </summary>
+        /// <param name="actionContext"></param>
+        /// <returns><see cref="BasicAuthenticationIdentity"/>Данные авторизации</returns>
         protected virtual BasicAuthenticationIdentity ParseAuthorizationHeader(HttpActionContext actionContext)
         {
             string authHeader = null;
@@ -83,6 +97,9 @@ namespace DetectionAPI.Filters
             return new BasicAuthenticationIdentity(tokens[0], tokens[1]);
         }
 
+        /// <summary>
+        /// Срабатывает, если установление личности не пройдено
+        /// </summary>
         void Challenge(HttpActionContext actionContext)
         {
             var host = actionContext.Request.RequestUri.DnsSafeHost;

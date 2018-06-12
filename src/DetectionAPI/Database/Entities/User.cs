@@ -5,10 +5,15 @@ using System.Data.Entity.ModelConfiguration;
 
 namespace DetectionAPI.Database.Entities
 {
+    /// <summary>
+    /// /// Класс, отображающий записи табицы базы данных Users в объект User и наоборот
+    /// </summary>
     public class User
     {
         #region Configuration
-
+        /// <summary>
+        /// Конфигурация таблицы базы данных
+        /// </summary>
         public sealed class UserConfiguration : EntityTypeConfiguration<User>
         {
             public UserConfiguration()

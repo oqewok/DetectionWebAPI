@@ -4,6 +4,9 @@ using System.IO;
 
 namespace DetectionAPI.Database.Entities
 {
+    /// <summary>
+    /// Класс, инициализирующий базу данных при первоначальном запуске программы
+    /// </summary>
     public class ApiDbContextInitializer : CreateDatabaseIfNotExists<ApiDbContext>
     {
         protected override void Seed(ApiDbContext context)
@@ -82,6 +85,7 @@ namespace DetectionAPI.Database.Entities
                 },
             };
 
+            //Добавление созданных записей в таблицу
             context.Users.AddRange(users);
             context.Sessions.AddRange(sessions);
             context.Images.AddRange(images);

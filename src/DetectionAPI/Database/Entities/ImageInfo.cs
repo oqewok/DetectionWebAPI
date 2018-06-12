@@ -4,10 +4,16 @@ using System.Data.Entity.ModelConfiguration;
 
 namespace DetectionAPI.Database.Entities
 {
+    /// <summary>
+    /// Класс, отображающий запись табицы базы данных Images в объект ImageInfo и наоборот
+    /// </summary>
     public class ImageInfo
     {
         #region Configuration
 
+        /// <summary>
+        /// Конфигурация таблицы базы данных
+        /// </summary>
         public sealed class ImageInfoConfiguration : EntityTypeConfiguration<ImageInfo>
         {
             public ImageInfoConfiguration()
@@ -49,7 +55,7 @@ namespace DetectionAPI.Database.Entities
 
 
         #region Properties
-
+        //PK
         public long ImageId { get; set; }
 
         public string ImagePath { get; set; }

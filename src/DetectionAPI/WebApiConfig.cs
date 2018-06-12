@@ -4,6 +4,9 @@ using Ninject;
 
 namespace DetectionAPIWebHost
 {
+    /// <summary>
+    /// Класс, описывающий конфигурацию сервиса
+    /// </summary>
     public static class WebApiConfig
     {
         // Конфигурация Web API и всех сервисов приложения

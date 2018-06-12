@@ -3,6 +3,9 @@ using System.Runtime.Serialization;
 
 namespace DetectionAPI.Helpers
 {
+    /// <summary>
+    /// Описывает структуру сообщения в HTTP-ответе на запрос ограничений использования сервиса
+    /// </summary>
     [DataContract]
     public class AvailableLimits
     {

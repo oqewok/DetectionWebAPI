@@ -14,19 +14,19 @@ using Newtonsoft.Json;
 
 namespace DetectionAPI.Controllers
 {
+    /// <summary>
+    /// Класс, принимающий запросы удаленных пользователей и осуществляющий действия
+    /// по созданию пользователей и контролю их сессий, осуществляющий генерацию и
+    /// выдачу токенов доступа
+    /// </summary>
     [EnableCors(origins: "*", headers: "*", methods: "*")]
     public class FinalAccountController : ApiController
     {
         /// <summary>
-        /// Create new user, FromBody parameter should be passed
-        /// as raw application/json:
-        /// {
-        ///     username : "username@example.com",
-        ///     password : "example_password" 
-        /// }
+        /// Создает нового пользователя с именем и паролем, переданными в теле
+        /// отправленного запроса, который передается в виде текста формата application/json
         /// </summary>
-        /// <param name="postedValues"></param>
-        /// <returns></returns>
+        /// <returns>HTTP-коды 200 OK или 400 BadRequest</returns>
         [HttpPost]
         [Route("api/f/account/new")]
         public IHttpActionResult AccountNew([FromBody] PostedUsernamePassword postedValues)
@@ -49,7 +49,7 @@ namespace DetectionAPI.Controllers
                     return BadRequest("User with the same username already exists!");
                 }
 
-                //Create new user after all checks
+                //После проверок создается новый пользователь
                 else
                 {
                     var newUser = new User
@@ -90,10 +90,9 @@ namespace DetectionAPI.Controllers
         }
 
         /// <summary>
-        /// Returns token when basic auth credentials given
-        /// Checks if user exists in filter
+        /// Возвращает для авторизированного пользователя токен доступа 
         /// </summary>
-        /// <returns></returns>
+        /// <returns>HTTP-коды 200 OK стокеном доступа в теле ответа или 400 BadRequest</returns>
         [HttpPost]
         [RealBasicAuthenticationFilter]
         [Route("api/f/account/token", Name = "GetAccessTokenHeaderParameter")]
@@ -122,7 +121,7 @@ namespace DetectionAPI.Controllers
                 }
             }
 
-            //Check if last session is expired and create new in that case
+            //Проверяет последнюю сессию и если она истекла, создает новую
             if (userId != -1)
             {
                 CheckHelper.CheckExpirySessionByUserId(userId);
@@ -132,6 +131,10 @@ namespace DetectionAPI.Controllers
             return CreatedAtRoute(routeName: "GetAccessTokenHeaderParameter", routeValues: new {}, content: tokenDict);
         }
 
+        /// <summary>
+        /// Обновляет токен доступа и отправляет его удаленному пользователю
+        /// </summary>
+        /// <returns>HTTP-коды 200 OK с токеном доступа в теле ответа или 400 BadRequest</returns>
         [HttpPost]
         [RealBasicAuthenticationFilter]
         [Route("api/f/account/token/refresh", Name = "RefreshAccessTokenHeaderParameter")]
@@ -162,7 +165,7 @@ namespace DetectionAPI.Controllers
                 }
             }
 
-            //Check if last session is expired and create new in that case
+            //Проверяет последнюю сессию и если она истекла, создает новую
             if (userId != -1)
             {
                 CheckHelper.CheckExpirySessionByUserId(userId);
@@ -177,6 +180,10 @@ namespace DetectionAPI.Controllers
             return NotFound();
         }
 
+        /// <summary>
+        /// Проверяет значения ограничений использования для прошедшего авторизацию пользователя
+        /// </summary>
+        /// <returns>HTTP-коды 200 OK со значениями ограничений для текущей сессии в теле ответа или 400 BadRequest</returns>
         [HttpGet]
         [Route("api/f/account/limits")]
         [RealBearerAuthenticationFilter]
@@ -207,6 +214,9 @@ namespace DetectionAPI.Controllers
             }  
         }
 
+        /// <summary>
+        /// Данные, передаваемые в теле запроса для создания пользователя
+        /// </summary>
         public class PostedUsernamePassword
         {
             [Required, MinLength(6)]
