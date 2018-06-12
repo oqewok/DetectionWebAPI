@@ -8,10 +8,10 @@ namespace DetectionAPI.Helpers
     public static class CheckHelper
     {
         /// <summary>
-        /// Checks last session by userId and update it if expiried already, then creates new session
+        /// Проверяет последнюю сессию пользователя на основании Id и создает новую, если прошлая истекла
         /// </summary>
         /// <param name="userId"></param>
-        /// <returns>Current session id</returns>
+        /// <returns>Id текущей сессии</returns>
         public static long CheckExpirySessionByUserId(long userId)
         {
             using (var dbContext = new ApiDbContext())
@@ -48,7 +48,7 @@ namespace DetectionAPI.Helpers
         }
 
         /// <summary>
-        /// Check session on limits and sets flags if limit is reached
+        /// Проверяет, было ли достигнуто ограничение по количеству запросов и устанавливает в этом случае соотв. флаг
         /// </summary>
         /// <param name="userId"></param>
         /// <returns><see cref="AvailableLimits"/></returns>

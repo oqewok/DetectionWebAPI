@@ -6,10 +6,10 @@ namespace DetectionAPIWebHost
 {
     public static class WebApiConfig
     {
-        // Web API configuration and services
+        // Конфигурация Web API и всех сервисов приложения
         public static void Register(HttpConfiguration config)
         {
-            //Removes XML formatter and sets new Newtonsoft.Json.Serializer as default
+            //Удалим XML форматировщики вывода и установим новый для формата JSON
             config.Formatters.Remove(config.Formatters.XmlFormatter);
             config.Formatters.JsonFormatter.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
             config.Formatters.JsonFormatter.UseDataContractJsonSerializer = false;
@@ -17,10 +17,9 @@ namespace DetectionAPIWebHost
             IKernel kernel = new StandardKernel();
             config.DependencyResolver = new DetectionAPI.Infrastructure.NinjectDependencyResolver(kernel);
 
-            //Override when the error detail gets sent back to clients directly
             config.IncludeErrorDetailPolicy = IncludeErrorDetailPolicy.LocalOnly;
 
-            // Web API routes
+            //Конифгурация стандартного маршрута, остальные маршруты динамически строятся на основании атрибутов к классам контроллеров
             config.MapHttpAttributeRoutes();
 
             config.Routes.MapHttpRoute(
