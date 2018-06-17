@@ -1,6 +1,7 @@
 ﻿using System.Web.Http;
 using DetectionAPIWebHost;
 using Owin;
+using Swashbuckle;
 
 namespace DetectionAPI
 {
@@ -14,6 +15,7 @@ namespace DetectionAPI
         public void Configuration(IAppBuilder app)
         {
             //GlobalConfiguration.Configure(WebApiConfig.Register);
+            
             var httpConfiguration = new HttpConfiguration();
             WebApiConfig.Register(httpConfiguration);
             app.UseWebApi(httpConfiguration);

@@ -1,6 +1,8 @@
 ﻿using Newtonsoft.Json.Serialization;
 using System.Web.Http;
 using Ninject;
+using Swashbuckle;
+using DetectionAPI;
 
 namespace DetectionAPIWebHost
 {
@@ -18,6 +20,13 @@ namespace DetectionAPIWebHost
             config.DependencyResolver = new DetectionAPI.Infrastructure.NinjectDependencyResolver(kernel);
 
             config.IncludeErrorDetailPolicy = IncludeErrorDetailPolicy.LocalOnly;
+
+
+            //Swagger
+            SwaggerConfig.Register();
+            
+
+
 
             //Конифгурация стандартного маршрута, остальные маршруты динамически строятся на основании атрибутов к классам контроллеров
             config.EnableCors();
